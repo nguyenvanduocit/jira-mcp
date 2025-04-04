@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.1...v1.1.0) (2025-04-04)
+
+
+### Features
+
+* **jira:** add worklog functionality ([82ea857](https://github.com/nguyenvanduocit/jira-mcp/commit/82ea85767653ea5de4f20beb6585d9f694696a9a))
+
 ## [1.0.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.0...v1.0.1) (2025-04-04)
 
 
