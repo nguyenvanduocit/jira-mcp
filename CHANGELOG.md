@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.0...v1.0.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* **api:** update Jira comment API implementation ([12798ee](https://github.com/nguyenvanduocit/jira-mcp/commit/12798ee285f0b8d5c70689db87fa60b74e72376d))
+
 ## 1.0.0 (2025-03-25)
 
 
