@@ -33,3 +33,4 @@ Thumbs.db
 # Build directory
 /build/
 /dist/
+.cursor/
