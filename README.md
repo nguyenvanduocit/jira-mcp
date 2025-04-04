@@ -1,6 +1,6 @@
 # Jira MCP
 
-A tool for interacting with Jira API through MCP.
+A Go-based MCP (Model Control Protocol) connector for Jira that enables AI assistants like Claude to interact with Atlassian Jira. This tool provides a seamless interface for AI models to perform common Jira operations.
 
 ## Features
 
@@ -55,8 +55,8 @@ go install github.com/nguyenvanduocit/jira-mcp
 ```
 {
   "mcpServers": {
-    "script": {
-      "command": "/path-to/script-mcp",
+    "jira": {
+      "command": "/path-to/jira-mcp",
       "args": ["-env", "path-to-env-file"]
     }
   }

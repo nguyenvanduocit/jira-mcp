@@ -10,4 +10,5 @@ func RegisterJiraTool(s *server.MCPServer) {
 	RegisterJiraSprintTool(s)
 	RegisterJiraStatusTool(s)
 	RegisterJiraTransitionTool(s)
+	RegisterJiraWorklogTool(s)
 }
