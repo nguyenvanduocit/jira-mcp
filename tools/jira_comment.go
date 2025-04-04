@@ -3,7 +3,6 @@ package tools
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -40,14 +39,11 @@ func jiraAddCommentHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 		return nil, fmt.Errorf("comment argument is required")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
-
-	commentPayload := &models.CommentPayload{
+	commentPayload := &models.CommentPayloadSchemeV2{
 		Body: commentText,
 	}
 
-	comment, response, err := client.Issue.Comment.Add(ctx, issueKey, commentPayload)
+	comment, response, err := client.Issue.Comment.Add(ctx, issueKey, commentPayload, nil)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to add comment: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -71,10 +67,7 @@ func jiraGetCommentsHandler(ctx context.Context, request mcp.CallToolRequest) (*
 		return nil, fmt.Errorf("issue_key argument is required")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
-
-	comments, response, err := client.Issue.Comment.Gets(ctx, issueKey, nil)
+	comments, response, err := client.Issue.Comment.Gets(ctx, issueKey, "", nil, 0, 0)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to get comments: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
