@@ -29,8 +29,8 @@ func main() {
 		server.WithResourceCapabilities(true, true),
 	)
 
-	// Register Jira tool
 	tools.RegisterJiraTool(mcpServer)
+	tools.RegisterJiraCommentTools(mcpServer)
 
 	if *ssePort != "" {
 		sseServer := server.NewSSEServer(mcpServer)
