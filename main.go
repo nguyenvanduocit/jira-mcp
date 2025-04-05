@@ -29,7 +29,12 @@ func main() {
 		server.WithResourceCapabilities(true, true),
 	)
 
-	tools.RegisterJiraTool(mcpServer)
+	tools.RegisterJiraIssueTool(mcpServer)
+	tools.RegisterJiraSearchTool(mcpServer)
+	tools.RegisterJiraSprintTool(mcpServer)
+	tools.RegisterJiraStatusTool(mcpServer)
+	tools.RegisterJiraTransitionTool(mcpServer)
+	tools.RegisterJiraWorklogTool(mcpServer)
 	tools.RegisterJiraCommentTools(mcpServer)
 
 	if *ssePort != "" {
