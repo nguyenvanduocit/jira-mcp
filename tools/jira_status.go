@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -27,9 +26,6 @@ func jiraGetStatusesHandler(ctx context.Context, request mcp.CallToolRequest) (*
 	if !ok {
 		return nil, fmt.Errorf("project_key argument is required")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
 
 	issueTypes, response, err := client.Project.Statuses(ctx, projectKey)
 	if err != nil {

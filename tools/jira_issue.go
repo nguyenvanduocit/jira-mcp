@@ -3,7 +3,6 @@ package tools
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -44,10 +43,7 @@ func jiraIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.Ca
 	if !ok {
 		return nil, fmt.Errorf("issue_key argument is required")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
-
+	
 	issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions"})
 	if err != nil {
 		if response != nil {
@@ -137,9 +133,6 @@ func jiraCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*
 		return nil, fmt.Errorf("issue_type argument is required")
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
-
 	var payload = models.IssueSchemeV2{
 		Fields: &models.IssueFieldsSchemeV2{
 			Summary:     summary,
@@ -180,9 +173,6 @@ func jiraUpdateIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*
 	if description, ok := request.Params.Arguments["description"].(string); ok && description != "" {
 		payload.Fields.Description = description
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
 
 	response, err := client.Issue.Update(ctx, issueKey, true, payload, nil, nil)
 	if err != nil {

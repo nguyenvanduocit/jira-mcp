@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -27,10 +26,7 @@ func jiraSearchHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	if !ok {
 		return nil, fmt.Errorf("jql argument is required")
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
-
+	
 	searchResult, response, err := client.Issue.Search.Get(ctx, jql, nil, nil, 0, 30, "")
 	if err != nil {
 		if response != nil {

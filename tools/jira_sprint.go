@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"time"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -30,9 +29,6 @@ func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	if err != nil {
 		return nil, fmt.Errorf("invalid board_id: %v", err)
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
 
 	sprints, response, err := services.AgileClient().Board.Sprints(ctx, boardID, 0, 50, []string{"active", "future"})
 	if err != nil {

@@ -3,7 +3,6 @@ package tools
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -41,9 +40,6 @@ func jiraTransitionIssueHandler(ctx context.Context, request mcp.CallToolRequest
 			Fields: &models.IssueSchemeV2{},
 		}
 	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), 4*time.Second)
-	defer cancel()
 
 	response, err := client.Issue.Move(ctx, issueKey, transitionID, options)
 	if err != nil {
