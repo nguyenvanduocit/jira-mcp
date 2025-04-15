@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.2.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.1.0...v1.2.0) (2025-04-15)
+
+
+### Features
+
+* **docker:** add Docker support with build and run instructions ([979cd45](https://github.com/nguyenvanduocit/jira-mcp/commit/979cd459663c0004c566cda658efbf9fca50bf52))
+* **docker:** add Docker support with build and run instructions ([078062e](https://github.com/nguyenvanduocit/jira-mcp/commit/078062ed7ba2686483a9df4c6000462d5b4fed3a))
+
 ## [1.1.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.1...v1.1.0) (2025-04-04)
 
 
