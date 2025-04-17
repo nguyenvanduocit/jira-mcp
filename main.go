@@ -9,6 +9,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/tools"
+	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 func main() {
@@ -51,15 +52,18 @@ func main() {
 	tools.RegisterJiraTransitionTool(mcpServer)
 	tools.RegisterJiraWorklogTool(mcpServer)
 	tools.RegisterJiraCommentTools(mcpServer)
+	tools.RegisterJiraHistoryTool(mcpServer)
+	tools.RegisterJiraRelationshipTool(mcpServer)
 
 	if *ssePort != "" {
 		sseServer := server.NewSSEServer(mcpServer)
-		if err := sseServer.Start(fmt.Sprintf(":%s", *ssePort)); err != nil {
+		if err := sseServer.Start(fmt.Sprintf(":%s", *ssePort)); err != nil && !util.IsContextCanceled(err) {
 			log.Fatalf("Server error: %v", err)
 		}
 	} else {
-		if err := server.ServeStdio(mcpServer); err != nil {
-			panic(fmt.Sprintf("Server error: %v", err))
+		if err := server.ServeStdio(mcpServer); err != nil && !util.IsContextCanceled(err) {
+			log.Printf("Server error: %v", err)
 		}
 	}
 }
+
