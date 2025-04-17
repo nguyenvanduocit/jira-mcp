@@ -2,8 +2,10 @@ package util
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"runtime"
+	"strings"
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
@@ -31,4 +33,22 @@ func ErrorGuard(handler server.ToolHandlerFunc) server.ToolHandlerFunc {
 
 func NewToolResultError(err error) *mcp.CallToolResult {
 	return mcp.NewToolResultText(fmt.Sprintf("Tool Error: %v", err))
+}
+
+// IsContextCanceled checks if the error is related to context cancellation
+func IsContextCanceled(err error) bool {
+	if err == nil {
+		return false
+	}
+	
+	// Check if it's directly context.Canceled
+	if errors.Is(err, context.Canceled) {
+		return true
+	}
+	
+	// Check if the error message contains context canceled
+	errMsg := strings.ToLower(err.Error())
+	return strings.Contains(errMsg, "context canceled") || 
+	       strings.Contains(errMsg, "operation was canceled") ||
+	       strings.Contains(errMsg, "context deadline exceeded")
 }
