@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.2.0...v1.3.0) (2025-04-17)
+
+
+### Features
+
+* **jira:** add issue history and relationship tools ([fc44bd4](https://github.com/nguyenvanduocit/jira-mcp/commit/fc44bd4384775260bf8ea7a0373c89d7053b6450))
+
 ## [1.2.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.1.0...v1.2.0) (2025-04-15)
 
 
