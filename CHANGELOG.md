@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.4.0...v1.5.0) (2025-04-18)
+
+
+### Features
+
+* **docker:** add GitHub Container Registry support ([f939b62](https://github.com/nguyenvanduocit/jira-mcp/commit/f939b629e764d4fe470f6954cc0d281eccde913f))
+* **sprint:** add get_sprint tool to retrieve details of a specific sprint ([6756a1c](https://github.com/nguyenvanduocit/jira-mcp/commit/6756a1c79ed0692aeac9d12287fd92ef6bc5f1c2))
+
 ## [1.4.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.3.0...v1.4.0) (2025-04-18)
 
 
