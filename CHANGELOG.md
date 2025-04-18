@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.3.0...v1.4.0) (2025-04-18)
+
+
+### Features
+
+* **tools:** simplify tool naming and add issue relationship features ([02279ea](https://github.com/nguyenvanduocit/jira-mcp/commit/02279ead729b7a9bd6e78d6ed7903931d39c1580))
+
 ## [1.3.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.2.0...v1.3.0) (2025-04-17)
 
 
