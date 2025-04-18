@@ -46,7 +46,12 @@ go install github.com/nguyenvanduocit/jira-mcp@latest
 
 #### Using Docker directly
 
-1. Build the Docker image:
+1. Pull the pre-built image from GitHub Container Registry:
+   ```bash
+   docker pull ghcr.io/nguyenvanduocit/jira-mcp:latest
+   ```
+
+2. Or build the Docker image locally:
    ```bash
    docker build -t jira-mcp .
    ```
@@ -92,7 +97,7 @@ Choose one of the installation methods above (Docker recommended).
         "-e", "ATLASSIAN_HOST=your_jira_instance.atlassian.net",
         "-e", "ATLASSIAN_EMAIL=your_email@example.com",
         "-e", "ATLASSIAN_TOKEN=your_atlassian_api_token",
-        "jira-mcp"
+        "ghcr.io/nguyenvanduocit/jira-mcp:latest"
       ]
     }
   }
