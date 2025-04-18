@@ -12,7 +12,7 @@ import (
 )
 
 func RegisterJiraHistoryTool(s *server.MCPServer) {
-	jiraGetIssueHistoryTool := mcp.NewTool("jira_get_issue_history",
+	jiraGetIssueHistoryTool := mcp.NewTool("get_issue_history",
 		mcp.WithDescription("Retrieve the complete change history of a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)

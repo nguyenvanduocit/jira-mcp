@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
@@ -12,11 +13,20 @@ import (
 )
 
 func RegisterJiraRelationshipTool(s *server.MCPServer) {
-	jiraRelationshipTool := mcp.NewTool("jira_get_related_issues",
+	jiraRelationshipTool := mcp.NewTool("get_related_issues",
 		mcp.WithDescription("Retrieve issues that have a relationship with a given issue, such as blocks, is blocked by, relates to, etc."),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
 	s.AddTool(jiraRelationshipTool, util.ErrorGuard(jiraRelationshipHandler))
+
+	jiraLinkTool := mcp.NewTool("link_issues",
+		mcp.WithDescription("Create a link between two Jira issues, defining their relationship (e.g., blocks, duplicates, relates to)"),
+		mcp.WithString("inward_issue", mcp.Required(), mcp.Description("The key of the inward issue (e.g., KP-1, PROJ-123)")),
+		mcp.WithString("outward_issue", mcp.Required(), mcp.Description("The key of the outward issue (e.g., KP-2, PROJ-123)")),
+		mcp.WithString("link_type", mcp.Required(), mcp.Description("The type of link between issues (e.g., Duplicate, Blocks, Relates)")),
+		mcp.WithString("comment", mcp.Description("Optional comment to add when creating the link")),
+	)
+	s.AddTool(jiraLinkTool, util.ErrorGuard(jiraLinkHandler))
 }
 
 func jiraRelationshipHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -85,4 +95,57 @@ func jiraRelationshipHandler(ctx context.Context, request mcp.CallToolRequest) (
 	}
 
 	return mcp.NewToolResultText(sb.String()), nil
+} 
+
+
+func jiraLinkHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	client := services.JiraClient()
+
+	inwardIssue, ok := request.Params.Arguments["inward_issue"].(string)
+	if !ok || inwardIssue == "" {
+		return nil, fmt.Errorf("inward_issue argument is required")
+	}
+
+	outwardIssue, ok := request.Params.Arguments["outward_issue"].(string)
+	if !ok || outwardIssue == "" {
+		return nil, fmt.Errorf("outward_issue argument is required")
+	}
+
+	linkType, ok := request.Params.Arguments["link_type"].(string)
+	if !ok || linkType == "" {
+		return nil, fmt.Errorf("link_type argument is required")
+	}
+
+	comment, _ := request.Params.Arguments["comment"].(string)
+
+	// Create the link payload
+	payload := &models.LinkPayloadSchemeV2{
+		InwardIssue: &models.LinkedIssueScheme{
+			Key: inwardIssue,
+		},
+		OutwardIssue: &models.LinkedIssueScheme{
+			Key: outwardIssue,
+		},
+		Type: &models.LinkTypeScheme{
+			Name: linkType,
+		},
+	}
+
+	// Add comment if provided
+	if comment != "" {
+		payload.Comment = &models.CommentPayloadSchemeV2{
+			Body: comment,
+		}
+	}
+
+	// Create the link
+	response, err := client.Issue.Link.Create(ctx, payload)
+	if err != nil {
+		if response != nil {
+			return nil, fmt.Errorf("failed to link issues: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
+		}
+		return nil, fmt.Errorf("failed to link issues: %v", err)
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Successfully linked issues %s and %s with link type \"%s\"", inwardIssue, outwardIssue, linkType)), nil
 } 

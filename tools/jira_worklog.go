@@ -14,7 +14,7 @@ import (
 )
 
 func RegisterJiraWorklogTool(s *server.MCPServer) {
-	jiraAddWorklogTool := mcp.NewTool("jira_add_worklog",
+	jiraAddWorklogTool := mcp.NewTool("add_worklog",
 		mcp.WithDescription("Add a worklog to a Jira issue to track time spent on the issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 		mcp.WithString("time_spent", mcp.Required(), mcp.Description("Time spent working on the issue (e.g., 3h, 30m, 1h 30m)")),
