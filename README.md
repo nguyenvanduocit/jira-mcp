@@ -4,22 +4,27 @@ A Go-based MCP (Model Control Protocol) connector for Jira that enables AI assis
 
 ## Features
 
-- Get issue details
-- Search issues with JQL
+- Get detailed issue information
+- Create, update, and search issues (including child issues)
+- List all available issue types and statuses
+- Add and retrieve comments
+- Add worklogs to issues
 - List and manage sprints
-- Create and update issues
-- List available statuses
+- Retrieve issue history and relationships
+- Link issues and get related issues
 - Transition issues through workflows
 
 ## Installation
 
-There are several ways to install the Script Tool:
+**Requirements:** Go 1.20+ (for building from source)
+
+There are several ways to install Jira MCP:
 
 ### Option 1: Download from GitHub Releases
 
 1. Visit the [GitHub Releases](https://github.com/nguyenvanduocit/jira-mcp/releases) page
 2. Download the binary for your platform:
-   - jira-mcp_linux_amd64` for Linux
+   - `jira-mcp_linux_amd64` for Linux
    - `jira-mcp_darwin_amd64` for macOS
    - `jira-mcp_windows_amd64.exe` for Windows
 3. Make the binary executable (Linux/macOS):
@@ -34,7 +39,7 @@ There are several ways to install the Script Tool:
 ### Option 2: Go install
 
 ```
-go install github.com/nguyenvanduocit/jira-mcp
+go install github.com/nguyenvanduocit/jira-mcp@latest
 ```
 
 ### Option 3: Docker
@@ -46,7 +51,7 @@ go install github.com/nguyenvanduocit/jira-mcp
    docker build -t jira-mcp .
    ```
 
-## Config
+## Configuration
 
 ### Environment Variables
 
@@ -58,8 +63,9 @@ ATLASSIAN_TOKEN=your_token
 ```
 
 You can set these:
-1. Directly in the Docker run command (recommended, as shown above)
-2. Through a .env file (optional for local development)
+1. Directly in the Docker run command (recommended)
+2. Through a `.env` file (optional for local development, use the `-env` flag)
+3. Directly in your shell environment
 
 ## Using with Claude and Cursor
 
@@ -122,3 +128,7 @@ You can test if the connection is working by asking Claude in Cursor:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+For a list of recent changes, see [CHANGELOG.md](./CHANGELOG.md).
