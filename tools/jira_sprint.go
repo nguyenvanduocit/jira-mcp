@@ -17,6 +17,53 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("board_id", mcp.Required(), mcp.Description("Numeric ID of the Jira board (can be found in board URL)")),
 	)
 	s.AddTool(jiraListSprintTool, util.ErrorGuard(jiraListSprintHandler))
+
+	jiraGetSprintTool := mcp.NewTool("get_sprint",
+		mcp.WithDescription("Retrieve detailed information about a specific Jira sprint by its ID"),
+		mcp.WithString("sprint_id", mcp.Required(), mcp.Description("Numeric ID of the sprint to retrieve")),
+	)
+	s.AddTool(jiraGetSprintTool, util.ErrorGuard(jiraGetSprintHandler))
+}
+
+func jiraGetSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	sprintIDStr, ok := request.Params.Arguments["sprint_id"].(string)
+	if !ok {
+		return nil, fmt.Errorf("sprint_id argument is required")
+	}
+
+	sprintID, err := strconv.Atoi(sprintIDStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid sprint_id: %v", err)
+	}
+
+	sprint, response, err := services.AgileClient().Sprint.Get(ctx, sprintID)
+	if err != nil {
+		if response != nil {
+			return nil, fmt.Errorf("failed to get sprint: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
+		}
+		return nil, fmt.Errorf("failed to get sprint: %v", err)
+	}
+
+	result := fmt.Sprintf(`Sprint Details:
+ID: %d
+Name: %s
+State: %s
+StartDate: %s
+EndDate: %s
+CompleteDate: %s
+OriginBoardID: %d
+Goal: %s`,
+		sprint.ID,
+		sprint.Name,
+		sprint.State,
+		sprint.StartDate,
+		sprint.EndDate,
+		sprint.CompleteDate,
+		sprint.OriginBoardID,
+		sprint.Goal,
+	)
+
+	return mcp.NewToolResultText(result), nil
 }
 
 func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
