@@ -12,7 +12,7 @@ import (
 )
 
 func RegisterJiraTransitionTool(s *server.MCPServer) {
-	jiraTransitionTool := mcp.NewTool("jira_transition_issue",
+	jiraTransitionTool := mcp.NewTool("transition_issue",
 		mcp.WithDescription("Transition an issue through its workflow using a valid transition ID. Get available transitions from jira_get_issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The issue to transition (e.g., KP-123)")),
 		mcp.WithString("transition_id", mcp.Required(), mcp.Description("Transition ID from available transitions list")),

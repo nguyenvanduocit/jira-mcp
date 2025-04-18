@@ -12,7 +12,7 @@ import (
 )
 
 func RegisterJiraSearchTool(s *server.MCPServer) {
-	jiraSearchTool := mcp.NewTool("jira_search_issue",
+	jiraSearchTool := mcp.NewTool("search_issue",
 		mcp.WithDescription("Search for Jira issues using JQL (Jira Query Language). Returns key details like summary, status, assignee, and priority for matching issues"),
 		mcp.WithString("jql", mcp.Required(), mcp.Description("JQL query string (e.g., 'project = KP AND status = \"In Progress\"')")),
 	)

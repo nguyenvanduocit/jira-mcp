@@ -12,7 +12,7 @@ import (
 )
 
 func RegisterJiraSprintTool(s *server.MCPServer) {
-	jiraListSprintTool := mcp.NewTool("jira_list_sprints",
+	jiraListSprintTool := mcp.NewTool("list_sprints",
 		mcp.WithDescription("List all active and future sprints for a specific Jira board, including sprint IDs, names, states, and dates"),
 		mcp.WithString("board_id", mcp.Required(), mcp.Description("Numeric ID of the Jira board (can be found in board URL)")),
 	)

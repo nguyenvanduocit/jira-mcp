@@ -12,14 +12,14 @@ import (
 )
 
 func RegisterJiraCommentTools(s *server.MCPServer) {
-	jiraAddCommentTool := mcp.NewTool("jira_add_comment",
+	jiraAddCommentTool := mcp.NewTool("add_comment",
 		mcp.WithDescription("Add a comment to a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 		mcp.WithString("comment", mcp.Required(), mcp.Description("The comment text to add to the issue")),
 	)
 	s.AddTool(jiraAddCommentTool, util.ErrorGuard(jiraAddCommentHandler))
 
-	jiraGetCommentsTool := mcp.NewTool("jira_get_comments",
+	jiraGetCommentsTool := mcp.NewTool("get_comments",
 		mcp.WithDescription("Retrieve all comments from a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
