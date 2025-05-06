@@ -39,7 +39,7 @@ func main() {
 
 	mcpServer := server.NewMCPServer(
 		"Jira MCP",
-		"1.0.0",
+		"1.0.1",
 		server.WithLogging(),
 		server.WithPromptCapabilities(true),
 		server.WithResourceCapabilities(true, true),
