@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.5.0...v1.6.0) (2025-05-06)
+
+
+### Features
+
+* bump version ([cd2a85c](https://github.com/nguyenvanduocit/jira-mcp/commit/cd2a85c42c8594240e8718524ac0082acf1b7db7))
+
 ## [1.5.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.4.0...v1.5.0) (2025-04-18)
 
 
