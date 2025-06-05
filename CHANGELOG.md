@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.8.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.7.0...v1.8.0) (2025-06-05)
+
+
+### Features
+
+* **tools:** enhance issue tools with flexible field selection ([40fef1d](https://github.com/nguyenvanduocit/jira-mcp/commit/40fef1dcaa4ef0ed7833cd6db24e3e31c0a35f73))
+
 ## [1.7.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.6.0...v1.7.0) (2025-06-05)
 
 
