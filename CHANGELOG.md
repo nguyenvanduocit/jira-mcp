@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.7.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.6.0...v1.7.0) (2025-06-05)
+
+
+### Features
+
+* **jira:** enhance issue retrieval with changelog and story point estimate ([6e9902c](https://github.com/nguyenvanduocit/jira-mcp/commit/6e9902c464430ffc759124792fe0907697d80fab))
+
+
+### Bug Fixes
+
+* retrieve all issue comments ([a7cfae5](https://github.com/nguyenvanduocit/jira-mcp/commit/a7cfae5e459fd50b3a62f80223bddfc659a5453b))
+
 ## [1.6.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.5.0...v1.6.0) (2025-05-06)
 
 
