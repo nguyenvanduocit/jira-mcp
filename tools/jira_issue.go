@@ -60,7 +60,7 @@ func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 		return nil, fmt.Errorf("issue_key argument is required")
 	}
 	
-	issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions"})
+	issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions", "changelog"})
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to get issue: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -96,6 +96,22 @@ func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 		priorityName = issue.Fields.Priority.Name
 	}
 
+	storyPoint := "None"
+	if issue.Changelog.Histories != nil {
+		for _, history := range issue.Changelog.Histories {
+			for _, item := range history.Items {
+				if item.Field == "Story point estimate" {
+					storyPoint = item.ToString
+				}
+			}
+		}
+	}
+
+	sprint := "None"
+	if issue.Fields.Sprint != nil {
+		sprint = issue.Fields.Sprint.Name
+	}
+
 	result := fmt.Sprintf(`
 Key: %s
 Summary: %s
@@ -106,6 +122,7 @@ Assignee: %s
 Created: %s
 Updated: %s
 Priority: %s
+Story point estimate: %s
 Description:
 %s
 %s
@@ -120,6 +137,7 @@ Available Transitions:
 		issue.Fields.Created,
 		issue.Fields.Updated,
 		priorityName,
+		storyPoint,
 		issue.Fields.Description,
 		subtasks,
 		transitions,
