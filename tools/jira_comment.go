@@ -51,11 +51,11 @@ func jiraAddCommentHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 		return nil, fmt.Errorf("failed to add comment: %v", err)
 	}
 
-	result := fmt.Sprintf("Comment added successfully!\nID: %s\nAuthor: %s\nCreated: %s", 
-		comment.ID, 
+	result := fmt.Sprintf("Comment added successfully!\nID: %s\nAuthor: %s\nCreated: %s",
+		comment.ID,
 		comment.Author.DisplayName,
 		comment.Created)
-	
+
 	return mcp.NewToolResultText(result), nil
 }
 
@@ -67,7 +67,9 @@ func jiraGetCommentsHandler(ctx context.Context, request mcp.CallToolRequest) (*
 		return nil, fmt.Errorf("issue_key argument is required")
 	}
 
-	comments, response, err := client.Issue.Comment.Gets(ctx, issueKey, "", nil, 0, 0)
+	// Retrieve up to 50 comments starting from the first one.
+	// Passing 0 for maxResults results in Jira returning only the first comment.
+	comments, response, err := client.Issue.Comment.Gets(ctx, issueKey, "", nil, 0, 50)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to get comments: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -86,8 +88,8 @@ func jiraGetCommentsHandler(ctx context.Context, request mcp.CallToolRequest) (*
 			authorName = comment.Author.DisplayName
 		}
 
-		result += fmt.Sprintf("ID: %s\nAuthor: %s\nCreated: %s\nUpdated: %s\nBody: %s\n\n", 
-			comment.ID, 
+		result += fmt.Sprintf("ID: %s\nAuthor: %s\nCreated: %s\nUpdated: %s\nBody: %s\n\n",
+			comment.ID,
 			authorName,
 			comment.Created,
 			comment.Updated,
