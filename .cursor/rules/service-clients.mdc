@@ -1,0 +1,68 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Service Clients
+
+The Jira MCP connector uses several service clients to interact with the Atlassian APIs:
+
+## Jira Client
+
+[services/jira.go](mdc:services/jira.go) provides the main Jira client using the go-atlassian SDK:
+
+```go
+var JiraClient = sync.OnceValue[*jira.Client](mdc:func() *jira.Client {
+    host, mail, token := loadAtlassianCredentials()
+    instance, err := jira.New(nil, host)
+    // Error handling
+    instance.Auth.SetBasicAuth(mail, token)
+    return instance
+})
+```
+
+Key features:
+- Uses `sync.OnceValue` to ensure a single client instance
+- Configured with basic authentication using the provided credentials
+- Automatically loaded when imported
+
+## Agile Client
+
+[services/atlassian.go](mdc:services/atlassian.go) provides an Agile client for sprint and board operations:
+
+```go
+var AgileClient = sync.OnceValue[*agile.Client](mdc:func() *agile.Client {
+    host, mail, token := loadAtlassianCredentials()
+    instance, err := agile.New(nil, host)
+    // Error handling
+    instance.Auth.SetBasicAuth(mail, token)
+    return instance
+})
+```
+
+## Authentication
+
+Authentication requires three environment variables:
+- `ATLASSIAN_HOST`: Your Atlassian instance URL
+- `ATLASSIAN_EMAIL`: Your Atlassian email
+- `ATLASSIAN_TOKEN`: Your Atlassian API token
+
+These credentials are loaded from environment variables using the `loadAtlassianCredentials()` function.
+
+## HTTP Client
+
+[services/httpclient.go](mdc:services/httpclient.go) provides custom HTTP client configuration for the Atlassian APIs if needed.
+
+## Usage
+
+To use these clients in MCP tool handlers:
+
+```go
+client := services.JiraClient()
+// Use client methods
+issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions"})
+
+// Or for Agile operations
+agileClient := services.AgileClient()
+// Use agile client methods
+```

@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# MCP Tools Implementation Guide
+
+The Jira MCP connector implements various tools to interact with Jira. Each tool follows a consistent pattern:
+
+## Tool Structure
+
+1. **Registration Function**: Each tool category has a `Register<Category>Tool` function that adds tools to the MCP server.
+2. **Tool Definition**: Tools are defined using `mcp.NewTool()` with parameters and descriptions.
+3. **Handler Function**: Each tool has a handler function that processes the request and returns a result.

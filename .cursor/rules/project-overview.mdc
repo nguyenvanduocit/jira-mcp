@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Overview
+
+This is a Jira MCP (Model Control Protocol) connector that enables AI assistants like Claude to interact with Atlassian Jira. The project provides a seamless interface for AI models to perform common Jira operations through structured tool calls.
+
+## Key Components
+
+- **Entry Point**: [main.go](mdc:main.go) - Initializes and configures the MCP server with all Jira tools
+- **Service Clients**: 
+  - [services/jira.go](mdc:services/jira.go) - Jira client setup
+  - [services/atlassian.go](mdc:services/atlassian.go) - Atlassian authentication and credentials

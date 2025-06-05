@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Architecture
+
+This Jira MCP (Model Control Protocol) connector allows AI assistants like Claude to interact with Atlassian Jira through structured tool calls.
+
+## Architecture Overview
+
+- **Entry Point**: [main.go](mdc:main.go) - Initializes the MCP server and registers all Jira tools
+- **Tool Definitions**: [tools/](mdc:tools) - Each file implements a set of related Jira operations as MCP tools
+- **Service Clients**: [services/](mdc:services) - Client implementations for Jira and Agile APIs
+- **Utilities**: [util/](mdc:util) - Error handling and other helper functions

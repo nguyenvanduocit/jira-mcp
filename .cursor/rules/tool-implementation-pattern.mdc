@@ -1,0 +1,67 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Tool Implementation Pattern
+
+Each Jira operation is implemented as an MCP tool following this consistent pattern:
+
+## 1. Tool Registration Function
+
+Each tool category has a registration function in the format `RegisterJira<Category>Tool` that:
+
+- Creates tool definitions with `mcp.NewTool()`
+- Adds required and optional parameters
+- Registers the tool with the MCP server using a handler function
+
+Example:
+```go
+func RegisterJiraIssueTool(s *server.MCPServer) {
+    jiraGetIssueTool := mcp.NewTool("get_issue",
+        mcp.WithDescription("Retrieve detailed information about a specific Jira issue..."),
+        mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue")),
+    )
+    s.AddTool(jiraGetIssueTool, util.ErrorGuard(jiraGetIssueHandler))
+    
+    // Additional tools...
+}
+```
+
+## 2. Tool Handler Function
+
+Each tool has a handler function that:
+
+1. Gets the Jira client from the services package
+2. Extracts and validates parameters from the request
+3. Makes API calls to Jira
+4. Formats the response into a readable text or JSON format
+5. Returns the result using `mcp.NewToolResultText()` or `mcp.NewToolResultJSON()`
+
+Example:
+```go
+func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+    client := services.JiraClient()
+    
+    issueKey := request.Params.Arguments["issue_key"].(string)
+    
+    issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions"})
+    if err != nil {
+        return nil, fmt.Errorf("failed to get issue: %v", err)
+    }
+    
+    // Format the response
+    result := fmt.Sprintf("Key: %s\nSummary: %s\n...", issue.Key, issue.Fields.Summary)
+    
+    return mcp.NewToolResultText(result), nil
+}
+```
+
+## 3. Error Handling
+
+All tool handlers are wrapped with `util.ErrorGuard()` to:
+- Catch and handle panics
+- Format error messages consistently
+- Return errors as tool results rather than failing the entire request
+
+For detailed implementation, see [tools/jira_issue.go](mdc:tools/jira_issue.go) as a reference.
