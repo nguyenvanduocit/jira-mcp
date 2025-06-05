@@ -137,3 +137,38 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ---
 
 For a list of recent changes, see [CHANGELOG.md](./CHANGELOG.md).
+
+## Development
+
+Always start server in SSE mode, then use mcp inspector to test the MCP server.
+
+here are some examples:
+
+```bash
+# Basic usage
+npx @modelcontextprotocol/inspector --cli node build/index.js
+
+# With config file
+npx @modelcontextprotocol/inspector --cli --config path/to/config.json --server myserver
+
+# List available tools
+npx @modelcontextprotocol/inspector --cli node build/index.js --method tools/list
+
+# Call a specific tool
+npx @modelcontextprotocol/inspector --cli node build/index.js --method tools/call --tool-name mytool --tool-arg key=value --tool-arg another=value2
+
+# List available resources
+npx @modelcontextprotocol/inspector --cli node build/index.js --method resources/list
+
+# List available prompts
+npx @modelcontextprotocol/inspector --cli node build/index.js --method prompts/list
+
+# Connect to a remote MCP server
+npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com
+
+# Call a tool on a remote server
+npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com --method tools/call --tool-name remotetool --tool-arg param=value
+
+# List resources from a remote server
+npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com --method resources/list
+```
