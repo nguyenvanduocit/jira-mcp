@@ -140,9 +140,18 @@ For a list of recent changes, see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Development
 
-Always start server in SSE mode, then use mcp inspector to test the MCP server.
+For local development run the server in SSE mode so the inspector can connect.
+You can start it using `just dev` or directly with `go run`:
 
-here are some examples:
+```bash
+# Start the server with an env file and SSE port
+just dev
+# or
+go run main.go --env .env --sse_port 3002
+```
+
+Once the server is running you can use the MCP inspector to test the MCP server.
+Here are some examples:
 
 ```bash
 # Basic usage
