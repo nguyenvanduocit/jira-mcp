@@ -16,6 +16,8 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 	jiraGetIssueTool := mcp.NewTool("get_issue",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira issue including its status, assignee, description, subtasks, and available transitions"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
+		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
+		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks'). Default: 'transitions,changelog'")),
 	)
 	s.AddTool(jiraGetIssueTool, util.ErrorGuard(jiraGetIssueHandler))
 
@@ -59,8 +61,20 @@ func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 	if !ok {
 		return nil, fmt.Errorf("issue_key argument is required")
 	}
+
+	// Parse fields parameter
+	var fields []string
+	if fieldsParam, ok := request.Params.Arguments["fields"].(string); ok && fieldsParam != "" {
+		fields = strings.Split(strings.ReplaceAll(fieldsParam, " ", ""), ",")
+	}
+
+	// Parse expand parameter with default values
+	expand := []string{"transitions", "changelog", "subtasks", "description"}
+	if expandParam, ok := request.Params.Arguments["expand"].(string); ok && expandParam != "" {
+		expand = strings.Split(strings.ReplaceAll(expandParam, " ", ""), ",")
+	}
 	
-	issue, response, err := client.Issue.Get(ctx, issueKey, nil, []string{"transitions", "changelog"})
+	issue, response, err := client.Issue.Get(ctx, issueKey, fields, expand)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to get issue: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -68,82 +82,10 @@ func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp
 		return nil, fmt.Errorf("failed to get issue: %v", err)
 	}
 
-	var subtasks string
-	if issue.Fields.Subtasks != nil {
-		subtasks = "\nSubtasks:\n"
-		for _, subTask := range issue.Fields.Subtasks {
-			subtasks += fmt.Sprintf("- %s: %s\n", subTask.Key, subTask.Fields.Summary)
-		}
-	}
+	// Use the new util function to format the issue
+	formattedIssue := util.FormatJiraIssue(issue)
 
-	var transitions string
-	for _, transition := range issue.Transitions {
-		transitions += fmt.Sprintf("- %s (ID: %s)\n", transition.Name, transition.ID)
-	}
-
-	reporterName := "Unassigned"
-	if issue.Fields.Reporter != nil {
-		reporterName = issue.Fields.Reporter.DisplayName
-	}
-
-	assigneeName := "Unassigned"
-	if issue.Fields.Assignee != nil {
-		assigneeName = issue.Fields.Assignee.DisplayName
-	}
-
-	priorityName := "None"
-	if issue.Fields.Priority != nil {
-		priorityName = issue.Fields.Priority.Name
-	}
-
-	storyPoint := "None"
-	if issue.Changelog.Histories != nil {
-		for _, history := range issue.Changelog.Histories {
-			for _, item := range history.Items {
-				if item.Field == "Story point estimate" {
-					storyPoint = item.ToString
-				}
-			}
-		}
-	}
-
-	sprint := "None"
-	if issue.Fields.Sprint != nil {
-		sprint = issue.Fields.Sprint.Name
-	}
-
-	result := fmt.Sprintf(`
-Key: %s
-Summary: %s
-Type: %s
-Status: %s
-Reporter: %s
-Assignee: %s
-Created: %s
-Updated: %s
-Priority: %s
-Story point estimate: %s
-Description:
-%s
-%s
-Available Transitions:
-%s`,
-		issue.Key,
-		issue.Fields.Summary,
-		issue.Fields.IssueType.Name,
-		issue.Fields.Status.Name,
-		reporterName,
-		assigneeName,
-		issue.Fields.Created,
-		issue.Fields.Updated,
-		priorityName,
-		storyPoint,
-		issue.Fields.Description,
-		subtasks,
-		transitions,
-	)
-
-	return mcp.NewToolResultText(result), nil
+	return mcp.NewToolResultText(formattedIssue), nil
 }
 
 func jiraCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -312,7 +254,10 @@ func jiraListIssueTypesHandler(ctx context.Context, request mcp.CallToolRequest)
 		if issueType.IconURL != "" {
 			result.WriteString(fmt.Sprintf("Icon URL: %s\n", issueType.IconURL))
 		}
-		result.WriteString(fmt.Sprintf("Scope: %s\n\n", issueType.Scope))
+		if issueType.Scope != nil {
+			result.WriteString(fmt.Sprintf("Scope: %s\n", issueType.Scope.Type))
+		}
+		result.WriteString("\n")
 	}
 
 	return mcp.NewToolResultText(result.String()), nil
