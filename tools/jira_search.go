@@ -15,6 +15,8 @@ func RegisterJiraSearchTool(s *server.MCPServer) {
 	jiraSearchTool := mcp.NewTool("search_issue",
 		mcp.WithDescription("Search for Jira issues using JQL (Jira Query Language). Returns key details like summary, status, assignee, and priority for matching issues"),
 		mcp.WithString("jql", mcp.Required(), mcp.Description("JQL query string (e.g., 'project = KP AND status = \"In Progress\"')")),
+		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
+		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks,description').")),
 	)
 	s.AddTool(jiraSearchTool, util.ErrorGuard(jiraSearchHandler))
 }
@@ -26,8 +28,20 @@ func jiraSearchHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	if !ok {
 		return nil, fmt.Errorf("jql argument is required")
 	}
+
+	// Parse fields parameter
+	var fields []string
+	if fieldsParam, ok := request.Params.Arguments["fields"].(string); ok && fieldsParam != "" {
+		fields = strings.Split(strings.ReplaceAll(fieldsParam, " ", ""), ",")
+	}
+
+	// Parse expand parameter
+	var expand []string = []string{"transitions", "changelog", "subtasks", "description"}
+	if expandParam, ok := request.Params.Arguments["expand"].(string); ok && expandParam != "" {
+		expand = strings.Split(strings.ReplaceAll(expandParam, " ", ""), ",")
+	}
 	
-	searchResult, response, err := client.Issue.Search.Get(ctx, jql, nil, nil, 0, 30, "")
+	searchResult, response, err := client.Issue.Search.Get(ctx, jql, fields, expand, 0, 30, "")
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to search issues: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -39,43 +53,14 @@ func jiraSearchHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 		return mcp.NewToolResultText("No issues found matching the search criteria."), nil
 	}
 
-	var sb strings.Builder
-	for _, issue := range searchResult.Issues {
-		sb.WriteString(fmt.Sprintf("Key: %s\n", issue.Key))
-
-		if issue.Fields.Summary != "" {
-			sb.WriteString(fmt.Sprintf("Summary: %s\n", issue.Fields.Summary))
+	var sb strings.Builder	
+	for index, issue := range searchResult.Issues {
+		// Use the comprehensive formatter for each issue
+		formattedIssue := util.FormatJiraIssue(issue)
+		sb.WriteString(formattedIssue)
+		if index < len(searchResult.Issues) - 1 {
+			sb.WriteString("\n===\n")
 		}
-
-		if issue.Fields.Status != nil && issue.Fields.Status.Name != "" {
-			sb.WriteString(fmt.Sprintf("Status: %s\n", issue.Fields.Status.Name))
-		}
-
-		if issue.Fields.Created != "" {
-			sb.WriteString(fmt.Sprintf("Created: %s\n", issue.Fields.Created))
-		}
-
-		if issue.Fields.Updated != "" {
-			sb.WriteString(fmt.Sprintf("Updated: %s\n", issue.Fields.Updated))
-		}
-
-		if issue.Fields.Assignee != nil {
-			sb.WriteString(fmt.Sprintf("Assignee: %s\n", issue.Fields.Assignee.DisplayName))
-		} else {
-			sb.WriteString("Assignee: Unassigned\n")
-		}
-
-		if issue.Fields.Priority != nil {
-			sb.WriteString(fmt.Sprintf("Priority: %s\n", issue.Fields.Priority.Name))
-		} else {
-			sb.WriteString("Priority: Unset\n")
-		}
-
-		if issue.Fields.Resolutiondate != "" {
-			sb.WriteString(fmt.Sprintf("Resolution date: %s\n", issue.Fields.Resolutiondate))
-		}
-
-		sb.WriteString("\n")
 	}
 
 	return mcp.NewToolResultText(sb.String()), nil
