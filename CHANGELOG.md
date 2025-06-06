@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.9.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.8.0...v1.9.0) (2025-06-06)
+
+
+### Features
+
+* add get_active_sprint tool ([3095319](https://github.com/nguyenvanduocit/jira-mcp/commit/30953192ce5e88d4940fea09f7a2331ae2516b54))
+* **sprint:** add get_active_sprint tool ([89724b2](https://github.com/nguyenvanduocit/jira-mcp/commit/89724b26b7e9c19dfc16d1c8d81455801145fb27))
+* **sprint:** enhance list_sprints and get_active_sprint tools with project_key support ([f31cac4](https://github.com/nguyenvanduocit/jira-mcp/commit/f31cac4701ef0e88e2c2b73cc950770c6b5cda02))
+
 ## [1.8.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.7.0...v1.8.0) (2025-06-05)
 
 
