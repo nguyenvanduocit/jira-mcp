@@ -48,6 +48,7 @@ func main() {
 	tools.RegisterJiraIssueTool(mcpServer)
 	tools.RegisterJiraSearchTool(mcpServer)
 	tools.RegisterJiraSprintTool(mcpServer)
+	tools.RegisterJiraSprintReportTool(mcpServer)
 	tools.RegisterJiraStatusTool(mcpServer)
 	tools.RegisterJiraTransitionTool(mcpServer)
 	tools.RegisterJiraWorklogTool(mcpServer)
@@ -66,4 +67,3 @@ func main() {
 		}
 	}
 }
-
