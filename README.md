@@ -10,6 +10,7 @@ A Go-based MCP (Model Control Protocol) connector for Jira that enables AI assis
 - Add and retrieve comments
 - Add worklogs to issues
 - List and manage sprints
+- Generate sprint reports
 - Retrieve issue history and relationships
 - Link issues and get related issues
 - Transition issues through workflows
