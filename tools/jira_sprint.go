@@ -23,6 +23,12 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("sprint_id", mcp.Required(), mcp.Description("Numeric ID of the sprint to retrieve")),
 	)
 	s.AddTool(jiraGetSprintTool, util.ErrorGuard(jiraGetSprintHandler))
+
+	jiraGetActiveSprintTool := mcp.NewTool("get_active_sprint",
+		mcp.WithDescription("Get the currently active sprint for a given board"),
+		mcp.WithString("board_id", mcp.Required(), mcp.Description("Numeric ID of the Jira board")),
+	)
+	s.AddTool(jiraGetActiveSprintTool, util.ErrorGuard(jiraGetActiveSprintHandler))
 }
 
 func jiraGetSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -93,6 +99,46 @@ func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	for _, sprint := range sprints.Values {
 		result += fmt.Sprintf("ID: %d\nName: %s\nState: %s\nStartDate: %s\nEndDate: %s\n\n", sprint.ID, sprint.Name, sprint.State, sprint.StartDate, sprint.EndDate)
 	}
+
+	return mcp.NewToolResultText(result), nil
+}
+
+func jiraGetActiveSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	boardIDStr, ok := request.Params.Arguments["board_id"].(string)
+	if !ok {
+		return nil, fmt.Errorf("board_id argument is required")
+	}
+
+	boardID, err := strconv.Atoi(boardIDStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid board_id: %v", err)
+	}
+
+	sprints, response, err := services.AgileClient().Board.Sprints(ctx, boardID, 0, 50, []string{"active"})
+	if err != nil {
+		if response != nil {
+			return nil, fmt.Errorf("failed to get active sprint: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
+		}
+		return nil, fmt.Errorf("failed to get active sprint: %v", err)
+	}
+
+	if len(sprints.Values) == 0 {
+		return mcp.NewToolResultText("No active sprint found for this board."), nil
+	}
+
+	sprint := sprints.Values[0]
+	result := fmt.Sprintf(`Active Sprint:
+ID: %d
+Name: %s
+State: %s
+StartDate: %s
+EndDate: %s`,
+		sprint.ID,
+		sprint.Name,
+		sprint.State,
+		sprint.StartDate,
+		sprint.EndDate,
+	)
 
 	return mcp.NewToolResultText(result), nil
 }
