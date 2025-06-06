@@ -33,6 +33,8 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
 	s.AddTool(jiraGetActiveSprintTool, util.ErrorGuard(jiraGetActiveSprintHandler))
+
+	
 }
 
 // Helper function to get board IDs either from direct board_id or by finding boards for a project
@@ -172,13 +174,15 @@ Name: %s
 State: %s
 StartDate: %s
 EndDate: %s
-Board ID: %d`,
+Board ID: %d
+Goal: %s`,
 				sprint.ID,
 				sprint.Name,
 				sprint.State,
 				sprint.StartDate,
 				sprint.EndDate,
 				boardID,
+				sprint.Goal,
 			)
 			return mcp.NewToolResultText(result), nil
 		}
