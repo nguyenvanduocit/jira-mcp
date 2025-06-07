@@ -2,17 +2,53 @@
 
 A Go-based MCP (Model Control Protocol) connector for Jira that enables AI assistants like Claude to interact with Atlassian Jira. This tool provides a seamless interface for AI models to perform common Jira operations.
 
+## WHY
+
+While Atlassian provides an official MCP connector, our implementation offers **superior flexibility and real-world problem-solving capabilities**. We've built this connector to address the daily challenges developers and project managers actually face, not just basic API operations.
+
+**Key Advantages:**
+- **More Comprehensive Tools**: We provide 20+ specialized tools covering every aspect of Jira workflow management
+- **Real-World Focus**: Built to solve actual daily problems like sprint management, issue relationships, and workflow transitions
+- **Enhanced Flexibility**: Support for complex operations like moving issues between sprints, creating child issues, and managing issue relationships
+- **Better Integration**: Seamless integration with AI assistants for natural language Jira operations
+- **Practical Design**: Tools designed for actual development workflows, not just basic CRUD operations
+
 ## Features
 
-- Get detailed issue information
-- Create, update, and search issues (including child issues)
-- List all available issue types and statuses
-- Add and retrieve comments
-- Add worklogs to issues
-- List and manage sprints
-- Retrieve issue history and relationships
-- Link issues and get related issues
-- Transition issues through workflows
+### Issue Management
+- **Get detailed issue information** with customizable fields and expansions
+- **Create new issues** with full field support
+- **Create child issues (subtasks)** with automatic parent linking
+- **Update existing issues** with partial field updates
+- **Search issues** using powerful JQL (Jira Query Language)
+- **List available issue types** for any project
+- **Transition issues** through workflow states
+- **Move issues to sprints** (up to 50 issues at once)
+
+### Comments & Time Tracking
+- **Add comments** to issues
+- **Retrieve all comments** from issues
+- **Add worklogs** with time tracking and custom start times
+- **Flexible time format support** (3h, 30m, 1h 30m, etc.)
+
+### Issue Relationships & History
+- **Link issues** with relationship types (blocks, duplicates, relates to)
+- **Get related issues** and their relationships
+- **Retrieve complete issue history** and change logs
+- **Track issue transitions** and workflow changes
+
+### Sprint & Project Management
+- **List all sprints** for boards or projects
+- **Get active sprint** information
+- **Get detailed sprint information** by ID
+- **List project statuses** and available transitions
+- **Board and project integration** with automatic discovery
+
+### Advanced Features
+- **Bulk operations** support (move multiple issues to sprint)
+- **Flexible parameter handling** (board_id or project_key)
+- **Rich formatting** of responses for AI consumption
+- **Error handling** with detailed debugging information
 
 ## Installation
 
@@ -154,30 +190,12 @@ Once the server is running you can use the MCP inspector to test the MCP server.
 Here are some examples:
 
 ```bash
-# Basic usage
-npx @modelcontextprotocol/inspector --cli node build/index.js
+# Connect to a local MCP server
+npx @modelcontextprotocol/inspector --cli http://localhost:3002
 
-# With config file
-npx @modelcontextprotocol/inspector --cli --config path/to/config.json --server myserver
+# Call a tool on a local server
+npx @modelcontextprotocol/inspector --cli http://localhost:3002 --method tools/call --tool-name remotetool --tool-arg param=value
 
-# List available tools
-npx @modelcontextprotocol/inspector --cli node build/index.js --method tools/list
-
-# Call a specific tool
-npx @modelcontextprotocol/inspector --cli node build/index.js --method tools/call --tool-name mytool --tool-arg key=value --tool-arg another=value2
-
-# List available resources
-npx @modelcontextprotocol/inspector --cli node build/index.js --method resources/list
-
-# List available prompts
-npx @modelcontextprotocol/inspector --cli node build/index.js --method prompts/list
-
-# Connect to a remote MCP server
-npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com
-
-# Call a tool on a remote server
-npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com --method tools/call --tool-name remotetool --tool-arg param=value
-
-# List resources from a remote server
-npx @modelcontextprotocol/inspector --cli https://my-mcp-server.example.com --method resources/list
+# List resources from a local server
+npx @modelcontextprotocol/inspector --cli http://localhost:3002 --method resources/list
 ```
