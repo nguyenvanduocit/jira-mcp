@@ -11,23 +11,23 @@ import (
 	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
+// Input types for typed tools
+type ListStatusesInput struct {
+	ProjectKey string `json:"project_key" validate:"required"`
+}
+
 func RegisterJiraStatusTool(s *server.MCPServer) {
 	jiraStatusListTool := mcp.NewTool("list_statuses",
 		mcp.WithDescription("Retrieve all available issue status IDs and their names for a specific Jira project"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraStatusListTool, util.ErrorGuard(jiraGetStatusesHandler))
+	s.AddTool(jiraStatusListTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetStatusesHandler)))
 }
 
-func jiraGetStatusesHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func jiraGetStatusesHandler(ctx context.Context, request mcp.CallToolRequest, input ListStatusesInput) (*mcp.CallToolResult, error) {
 	client := services.JiraClient()
 
-	projectKey, ok := request.Params.Arguments["project_key"].(string)
-	if !ok {
-		return nil, fmt.Errorf("project_key argument is required")
-	}
-
-	issueTypes, response, err := client.Project.Statuses(ctx, projectKey)
+	issueTypes, response, err := client.Project.Statuses(ctx, input.ProjectKey)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to get statuses: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)

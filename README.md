@@ -176,14 +176,14 @@ For a list of recent changes, see [CHANGELOG.md](./CHANGELOG.md).
 
 ## Development
 
-For local development run the server in SSE mode so the inspector can connect.
+For local development run the server in Streamable HTTP mode so the inspector can connect.
 You can start it using `just dev` or directly with `go run`:
 
 ```bash
 # Start the server with an env file and SSE port
 just dev
 # or
-go run main.go --env .env --sse_port 3002
+go run main.go --env .env --http_port 3002
 ```
 
 Once the server is running you can use the MCP inspector to test the MCP server.

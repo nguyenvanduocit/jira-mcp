@@ -13,6 +13,14 @@ import (
 	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
+// Input types for typed tools
+type AddWorklogInput struct {
+	IssueKey  string `json:"issue_key" validate:"required"`
+	TimeSpent string `json:"time_spent" validate:"required"`
+	Comment   string `json:"comment,omitempty"`
+	Started   string `json:"started,omitempty"`
+}
+
 func RegisterJiraWorklogTool(s *server.MCPServer) {
 	jiraAddWorklogTool := mcp.NewTool("add_worklog",
 		mcp.WithDescription("Add a worklog to a Jira issue to track time spent on the issue"),
@@ -21,39 +29,23 @@ func RegisterJiraWorklogTool(s *server.MCPServer) {
 		mcp.WithString("comment", mcp.Description("Comment describing the work done")),
 		mcp.WithString("started", mcp.Description("When the work began, in ISO 8601 format (e.g., 2023-05-01T10:00:00.000+0000). Defaults to current time.")),
 	)
-	s.AddTool(jiraAddWorklogTool, util.ErrorGuard(jiraAddWorklogHandler))
+	s.AddTool(jiraAddWorklogTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraAddWorklogHandler)))
 }
 
-func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest, input AddWorklogInput) (*mcp.CallToolResult, error) {
 	client := services.JiraClient()
-
-	issueKey, ok := request.Params.Arguments["issue_key"].(string)
-	if !ok {
-		return nil, fmt.Errorf("issue_key argument is required")
-	}
-
-	timeSpent, ok := request.Params.Arguments["time_spent"].(string)
-	if !ok {
-		return nil, fmt.Errorf("time_spent argument is required")
-	}
 
 	// Convert timeSpent to seconds (this is a simplification - in a real implementation 
 	// you would need to parse formats like "1h 30m" properly)
-	timeSpentSeconds, err := parseTimeSpent(timeSpent)
+	timeSpentSeconds, err := parseTimeSpent(input.TimeSpent)
 	if err != nil {
 		return nil, fmt.Errorf("invalid time_spent format: %v", err)
 	}
 
-	// Get comment if provided
-	var comment string
-	if commentArg, ok := request.Params.Arguments["comment"].(string); ok {
-		comment = commentArg
-	}
-
 	// Get started time if provided, otherwise use current time
 	var started string
-	if startedArg, ok := request.Params.Arguments["started"].(string); ok && startedArg != "" {
-		started = startedArg
+	if input.Started != "" {
+		started = input.Started
 	} else {
 		// Format current time in ISO 8601 format
 		started = time.Now().Format("2006-01-02T15:04:05.000-0700")
@@ -70,14 +62,14 @@ func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	}
 
 	// Add comment if provided
-	if comment != "" {
+	if input.Comment != "" {
 		payload.Comment = &models.CommentPayloadSchemeV2{
-			Body: comment,
+			Body: input.Comment,
 		}
 	}
 
 	// Call the Jira API to add the worklog
-	worklog, response, err := client.Issue.Worklog.Add(ctx, issueKey, payload, options)
+	worklog, response, err := client.Issue.Worklog.Add(ctx, input.IssueKey, payload, options)
 	if err != nil {
 		if response != nil {
 			return nil, fmt.Errorf("failed to add worklog: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -91,9 +83,9 @@ Worklog ID: %s
 Time Spent: %s (%d seconds)
 Date Started: %s
 Author: %s`,
-		issueKey,
+		input.IssueKey,
 		worklog.ID,
-		timeSpent,
+		input.TimeSpent,
 		worklog.TimeSpentSeconds,
 		worklog.Started,
 		worklog.Author.DisplayName,
