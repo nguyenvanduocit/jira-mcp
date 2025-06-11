@@ -100,10 +100,10 @@ func jiraGetSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mc
 ID: %d
 Name: %s
 State: %s
-StartDate: %s
-EndDate: %s
-CompleteDate: %s
-OriginBoardID: %d
+Start Date: %s
+End Date: %s
+Complete Date: %s
+Origin Board ID: %d
 Goal: %s`,
 		sprint.ID,
 		sprint.Name,
@@ -170,8 +170,8 @@ func jiraGetActiveSprintHandler(ctx context.Context, request mcp.CallToolRequest
 ID: %d
 Name: %s
 State: %s
-StartDate: %s
-EndDate: %s
+Start Date: %s
+End Date: %s
 Board ID: %d`,
 				sprint.ID,
 				sprint.Name,
