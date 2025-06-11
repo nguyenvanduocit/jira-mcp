@@ -13,46 +13,58 @@ import (
 	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
+// Input types for typed tools
+type ListSprintsInput struct {
+	BoardID    string `json:"board_id,omitempty"`
+	ProjectKey string `json:"project_key,omitempty"`
+}
+
+type GetSprintInput struct {
+	SprintID string `json:"sprint_id" validate:"required"`
+}
+
+type GetActiveSprintInput struct {
+	BoardID    string `json:"board_id,omitempty"`
+	ProjectKey string `json:"project_key,omitempty"`
+}
+
 func RegisterJiraSprintTool(s *server.MCPServer) {
 	jiraListSprintTool := mcp.NewTool("list_sprints",
 		mcp.WithDescription("List all active and future sprints for a specific Jira board or project. Requires either board_id or project_key."),
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board (can be found in board URL). Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraListSprintTool, util.ErrorGuard(jiraListSprintHandler))
+	s.AddTool(jiraListSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraListSprintHandler)))
 
 	jiraGetSprintTool := mcp.NewTool("get_sprint",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira sprint by its ID"),
 		mcp.WithString("sprint_id", mcp.Required(), mcp.Description("Numeric ID of the sprint to retrieve")),
 	)
-	s.AddTool(jiraGetSprintTool, util.ErrorGuard(jiraGetSprintHandler))
+	s.AddTool(jiraGetSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetSprintHandler)))
 
 	jiraGetActiveSprintTool := mcp.NewTool("get_active_sprint",
 		mcp.WithDescription("Get the currently active sprint for a given board or project. Requires either board_id or project_key."),
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board. Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraGetActiveSprintTool, util.ErrorGuard(jiraGetActiveSprintHandler))
+	s.AddTool(jiraGetActiveSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetActiveSprintHandler)))
 }
 
 // Helper function to get board IDs either from direct board_id or by finding boards for a project
-func getBoardIDs(ctx context.Context, request mcp.CallToolRequest) ([]int, error) {
-	boardIDStr, hasBoardID := request.Params.Arguments["board_id"].(string)
-	projectKey, hasProjectKey := request.Params.Arguments["project_key"].(string)
-
-	if !hasBoardID && !hasProjectKey {
+func getBoardIDsFromInput(ctx context.Context, boardID, projectKey string) ([]int, error) {
+	if boardID == "" && projectKey == "" {
 		return nil, fmt.Errorf("either board_id or project_key argument is required")
 	}
 
-	if hasBoardID && boardIDStr != "" {
-		boardID, err := strconv.Atoi(boardIDStr)
+	if boardID != "" {
+		boardIDInt, err := strconv.Atoi(boardID)
 		if err != nil {
 			return nil, fmt.Errorf("invalid board_id: %v", err)
 		}
-		return []int{boardID}, nil
+		return []int{boardIDInt}, nil
 	}
 
-	if hasProjectKey && projectKey != "" {
+	if projectKey != "" {
 		boards, response, err := services.AgileClient().Board.Gets(ctx, &models.GetBoardsOptions{
 			ProjectKeyOrID: projectKey,
 		}, 0, 50)
@@ -77,13 +89,8 @@ func getBoardIDs(ctx context.Context, request mcp.CallToolRequest) ([]int, error
 	return nil, fmt.Errorf("either board_id or project_key argument is required")
 }
 
-func jiraGetSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	sprintIDStr, ok := request.Params.Arguments["sprint_id"].(string)
-	if !ok {
-		return nil, fmt.Errorf("sprint_id argument is required")
-	}
-
-	sprintID, err := strconv.Atoi(sprintIDStr)
+func jiraGetSprintHandler(ctx context.Context, request mcp.CallToolRequest, input GetSprintInput) (*mcp.CallToolResult, error) {
+	sprintID, err := strconv.Atoi(input.SprintID)
 	if err != nil {
 		return nil, fmt.Errorf("invalid sprint_id: %v", err)
 	}
@@ -118,8 +125,8 @@ Goal: %s`,
 	return mcp.NewToolResultText(result), nil
 }
 
-func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	boardIDs, err := getBoardIDs(ctx, request)
+func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest, input ListSprintsInput) (*mcp.CallToolResult, error) {
+	boardIDs, err := getBoardIDsFromInput(ctx, input.BoardID, input.ProjectKey)
 	if err != nil {
 		return nil, err
 	}
@@ -148,8 +155,8 @@ func jiraListSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 	return mcp.NewToolResultText(result), nil
 }
 
-func jiraGetActiveSprintHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	boardIDs, err := getBoardIDs(ctx, request)
+func jiraGetActiveSprintHandler(ctx context.Context, request mcp.CallToolRequest, input GetActiveSprintInput) (*mcp.CallToolResult, error) {
+	boardIDs, err := getBoardIDsFromInput(ctx, input.BoardID, input.ProjectKey)
 	if err != nil {
 		return nil, err
 	}

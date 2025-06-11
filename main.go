@@ -1,20 +1,22 @@
 package main
 
 import (
+	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/tools"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 func main() {
 	envFile := flag.String("env", "", "Path to environment file (optional when environment variables are set directly)")
-	ssePort := flag.String("sse_port", "", "Port for SSE server. If not provided, will use stdio")
+	httpPort := flag.String("http_port", "", "Port for HTTP server. If not provided, will use stdio")
 	flag.Parse()
 
 	if *envFile != "" {
@@ -55,15 +57,32 @@ func main() {
 	tools.RegisterJiraHistoryTool(mcpServer)
 	tools.RegisterJiraRelationshipTool(mcpServer)
 
-	if *ssePort != "" {
-		sseServer := server.NewSSEServer(mcpServer)
-		if err := sseServer.Start(fmt.Sprintf(":%s", *ssePort)); err != nil && !util.IsContextCanceled(err) {
+	if *httpPort != "" {
+		httpServer := server.NewStreamableHTTPServer(mcpServer)
+		if err := httpServer.Start(fmt.Sprintf(":%s", *httpPort)); err != nil && !isContextCanceled(err) {
 			log.Fatalf("Server error: %v", err)
 		}
 	} else {
-		if err := server.ServeStdio(mcpServer); err != nil && !util.IsContextCanceled(err) {
+		if err := server.ServeStdio(mcpServer); err != nil && !isContextCanceled(err) {
 			log.Printf("Server error: %v", err)
 		}
 	}
 }
 
+// IsContextCanceled checks if the error is related to context cancellation
+func isContextCanceled(err error) bool {
+	if err == nil {
+		return false
+	}
+	
+	// Check if it's directly context.Canceled
+	if errors.Is(err, context.Canceled) {
+		return true
+	}
+	
+	// Check if the error message contains context canceled
+	errMsg := strings.ToLower(err.Error())
+	return strings.Contains(errMsg, "context canceled") || 
+	       strings.Contains(errMsg, "operation was canceled") ||
+	       strings.Contains(errMsg, "context deadline exceeded")
+}
