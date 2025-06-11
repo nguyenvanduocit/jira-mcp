@@ -8,7 +8,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -25,7 +24,7 @@ func RegisterJiraTransitionTool(s *server.MCPServer) {
 		mcp.WithString("transition_id", mcp.Required(), mcp.Description("Transition ID from available transitions list")),
 		mcp.WithString("comment", mcp.Description("Optional comment to add with transition")),
 	)
-	s.AddTool(jiraTransitionTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraTransitionIssueHandler)))
+	s.AddTool(jiraTransitionTool, mcp.NewTypedToolHandler(jiraTransitionIssueHandler))
 }
 
 func jiraTransitionIssueHandler(ctx context.Context, request mcp.CallToolRequest, input TransitionIssueInput) (*mcp.CallToolResult, error) {
