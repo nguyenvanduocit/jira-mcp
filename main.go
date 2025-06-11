@@ -19,25 +19,58 @@ func main() {
 	httpPort := flag.String("http_port", "", "Port for HTTP server. If not provided, will use stdio")
 	flag.Parse()
 
+	// Load environment file if specified
 	if *envFile != "" {
 		if err := godotenv.Load(*envFile); err != nil {
-			fmt.Printf("Warning: Error loading env file %s: %v\n", *envFile, err)
+			fmt.Printf("⚠️  Warning: Error loading env file %s: %v\n", *envFile, err)
+		} else {
+			fmt.Printf("✅ Loaded environment variables from %s\n", *envFile)
 		}
 	}
 
+	// Check required environment variables
 	requiredEnvs := []string{"ATLASSIAN_HOST", "ATLASSIAN_EMAIL", "ATLASSIAN_TOKEN"}
-	missingEnvs := false
+	missingEnvs := []string{}
 	for _, env := range requiredEnvs {
 		if os.Getenv(env) == "" {
-			fmt.Printf("Warning: Required environment variable %s is not set\n", env)
-			missingEnvs = true
+			missingEnvs = append(missingEnvs, env)
 		}
 	}
 
-	if missingEnvs {
-		fmt.Println("Required environment variables missing. You must provide them via .env file or directly as environment variables.")
-		fmt.Println("If using docker: docker run -e ATLASSIAN_HOST=value -e ATLASSIAN_EMAIL=value -e ATLASSIAN_TOKEN=value ...")
+	if len(missingEnvs) > 0 {
+		fmt.Println("❌ Configuration Error: Missing required environment variables")
+		fmt.Println()
+		fmt.Println("Missing variables:")
+		for _, env := range missingEnvs {
+			fmt.Printf("  - %s\n", env)
+		}
+		fmt.Println()
+		fmt.Println("📋 Setup Instructions:")
+		fmt.Println("1. Get your Atlassian API token from: https://id.atlassian.com/manage-profile/security/api-tokens")
+		fmt.Println("2. Set the environment variables:")
+		fmt.Println()
+		fmt.Println("   Option A - Using .env file:")
+		fmt.Println("   Create a .env file with:")
+		fmt.Println("   ATLASSIAN_HOST=your-domain.atlassian.net")
+		fmt.Println("   ATLASSIAN_EMAIL=your-email@example.com")
+		fmt.Println("   ATLASSIAN_TOKEN=your-api-token")
+		fmt.Println()
+		fmt.Println("   Option B - Using environment variables:")
+		fmt.Println("   export ATLASSIAN_HOST=your-domain.atlassian.net")
+		fmt.Println("   export ATLASSIAN_EMAIL=your-email@example.com")
+		fmt.Println("   export ATLASSIAN_TOKEN=your-api-token")
+		fmt.Println()
+		fmt.Println("   Option C - Using Docker:")
+		fmt.Printf("   docker run -e ATLASSIAN_HOST=your-domain.atlassian.net \\\n")
+		fmt.Printf("              -e ATLASSIAN_EMAIL=your-email@example.com \\\n")
+		fmt.Printf("              -e ATLASSIAN_TOKEN=your-api-token \\\n")
+		fmt.Printf("              ghcr.io/nguyenvanduocit/jira-mcp:latest\n")
+		fmt.Println()
+		os.Exit(1)
 	}
+
+	fmt.Println("✅ All required environment variables are set")
+	fmt.Printf("🔗 Connected to: %s\n", os.Getenv("ATLASSIAN_HOST"))
 
 	mcpServer := server.NewMCPServer(
 		"Jira MCP",
@@ -45,8 +78,10 @@ func main() {
 		server.WithLogging(),
 		server.WithPromptCapabilities(true),
 		server.WithResourceCapabilities(true, true),
+		server.WithRecovery(),
 	)
 
+	// Register all Jira tools
 	tools.RegisterJiraIssueTool(mcpServer)
 	tools.RegisterJiraSearchTool(mcpServer)
 	tools.RegisterJiraSprintTool(mcpServer)
@@ -58,13 +93,37 @@ func main() {
 	tools.RegisterJiraRelationshipTool(mcpServer)
 
 	if *httpPort != "" {
-		httpServer := server.NewStreamableHTTPServer(mcpServer)
+		fmt.Println()
+		fmt.Println("🚀 Starting Jira MCP Server in HTTP mode...")
+		fmt.Printf("📡 Server will be available at: http://localhost:%s/mcp\n", *httpPort)
+		fmt.Println()
+		fmt.Println("📋 Cursor Configuration:")
+		fmt.Println("Add the following to your Cursor MCP settings (.cursor/mcp.json):")
+		fmt.Println()
+		fmt.Println("```json")
+		fmt.Println("{")
+		fmt.Println("  \"mcpServers\": {")
+		fmt.Println("    \"jira\": {")
+		fmt.Printf("      \"url\": \"http://localhost:%s/mcp\"\n", *httpPort)
+		fmt.Println("    }")
+		fmt.Println("  }")
+		fmt.Println("}")
+		fmt.Println("```")
+		fmt.Println()
+		fmt.Println("💡 Tips:")
+		fmt.Println("- Restart Cursor after adding the configuration")
+		fmt.Println("- Test the connection by asking Claude: 'List my Jira projects'")
+		fmt.Println("- Use '@jira' in Cursor to reference Jira-related context")
+		fmt.Println()
+		fmt.Println("🔄 Server starting...")
+		
+		httpServer := server.NewStreamableHTTPServer(mcpServer, server.WithEndpointPath("/mcp"))
 		if err := httpServer.Start(fmt.Sprintf(":%s", *httpPort)); err != nil && !isContextCanceled(err) {
-			log.Fatalf("Server error: %v", err)
+			log.Fatalf("❌ Server error: %v", err)
 		}
 	} else {
 		if err := server.ServeStdio(mcpServer); err != nil && !isContextCanceled(err) {
-			log.Printf("Server error: %v", err)
+			log.Fatalf("❌ Server error: %v", err)
 		}
 	}
 }

@@ -8,7 +8,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -27,13 +26,13 @@ func RegisterJiraCommentTools(s *server.MCPServer) {
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 		mcp.WithString("comment", mcp.Required(), mcp.Description("The comment text to add to the issue")),
 	)
-	s.AddTool(jiraAddCommentTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraAddCommentHandler)))
+	s.AddTool(jiraAddCommentTool, mcp.NewTypedToolHandler(jiraAddCommentHandler))
 
 	jiraGetCommentsTool := mcp.NewTool("get_comments",
 		mcp.WithDescription("Retrieve all comments from a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
-	s.AddTool(jiraGetCommentsTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetCommentsHandler)))
+	s.AddTool(jiraGetCommentsTool, mcp.NewTypedToolHandler(jiraGetCommentsHandler))
 }
 
 func jiraAddCommentHandler(ctx context.Context, request mcp.CallToolRequest, input AddCommentInput) (*mcp.CallToolResult, error) {

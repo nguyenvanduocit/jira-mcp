@@ -25,7 +25,7 @@ func RegisterJiraSearchTool(s *server.MCPServer) {
 		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
 		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks,description').")),
 	)
-	s.AddTool(jiraSearchTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraSearchHandler)))
+	s.AddTool(jiraSearchTool, mcp.NewTypedToolHandler(jiraSearchHandler))
 }
 
 func jiraSearchHandler(ctx context.Context, request mcp.CallToolRequest, input SearchIssueInput) (*mcp.CallToolResult, error) {

@@ -10,7 +10,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -34,20 +33,20 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board (can be found in board URL). Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraListSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraListSprintHandler)))
+	s.AddTool(jiraListSprintTool, mcp.NewTypedToolHandler(jiraListSprintHandler))
 
 	jiraGetSprintTool := mcp.NewTool("get_sprint",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira sprint by its ID"),
 		mcp.WithString("sprint_id", mcp.Required(), mcp.Description("Numeric ID of the sprint to retrieve")),
 	)
-	s.AddTool(jiraGetSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetSprintHandler)))
+	s.AddTool(jiraGetSprintTool, mcp.NewTypedToolHandler(jiraGetSprintHandler))
 
 	jiraGetActiveSprintTool := mcp.NewTool("get_active_sprint",
 		mcp.WithDescription("Get the currently active sprint for a given board or project. Requires either board_id or project_key."),
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board. Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraGetActiveSprintTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetActiveSprintHandler)))
+	s.AddTool(jiraGetActiveSprintTool, mcp.NewTypedToolHandler(jiraGetActiveSprintHandler))
 }
 
 // Helper function to get board IDs either from direct board_id or by finding boards for a project

@@ -50,7 +50,7 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
 		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks'). Default: 'transitions,changelog'")),
 	)
-	s.AddTool(jiraGetIssueTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetIssueHandler)))
+	s.AddTool(jiraGetIssueTool, mcp.NewTypedToolHandler(jiraGetIssueHandler))
 
 	jiraCreateIssueTool := mcp.NewTool("create_issue",
 		mcp.WithDescription("Create a new Jira issue with specified details. Returns the created issue's key, ID, and URL"),
@@ -59,7 +59,7 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("description", mcp.Required(), mcp.Description("Detailed explanation of the issue")),
 		mcp.WithString("issue_type", mcp.Required(), mcp.Description("Type of issue to create (common types: Bug, Task, Subtask, Story, Epic)")),
 	)
-	s.AddTool(jiraCreateIssueTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraCreateIssueHandler)))
+	s.AddTool(jiraCreateIssueTool, mcp.NewTypedToolHandler(jiraCreateIssueHandler))
 
 	jiraCreateChildIssueTool := mcp.NewTool("create_child_issue",
 		mcp.WithDescription("Create a child issue (sub-task) linked to a parent issue in Jira. Returns the created issue's key, ID, and URL"),
@@ -68,7 +68,7 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("description", mcp.Required(), mcp.Description("Detailed explanation of the child issue")),
 		mcp.WithString("issue_type", mcp.Description("Type of child issue to create (defaults to 'Subtask' if not specified)")),
 	)
-	s.AddTool(jiraCreateChildIssueTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraCreateChildIssueHandler)))
+	s.AddTool(jiraCreateChildIssueTool, mcp.NewTypedToolHandler(jiraCreateChildIssueHandler))
 
 	jiraUpdateIssueTool := mcp.NewTool("update_issue",
 		mcp.WithDescription("Modify an existing Jira issue's details. Supports partial updates - only specified fields will be changed"),
@@ -76,13 +76,13 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("summary", mcp.Description("New title for the issue (optional)")),
 		mcp.WithString("description", mcp.Description("New description for the issue (optional)")),
 	)
-	s.AddTool(jiraUpdateIssueTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraUpdateIssueHandler)))
+	s.AddTool(jiraUpdateIssueTool, mcp.NewTypedToolHandler(jiraUpdateIssueHandler))
 
 	jiraListIssueTypesTool := mcp.NewTool("list_issue_types",
 		mcp.WithDescription("List all available issue types in a Jira project with their IDs, names, descriptions, and other attributes"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier to list issue types for (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraListIssueTypesTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraListIssueTypesHandler)))
+	s.AddTool(jiraListIssueTypesTool, mcp.NewTypedToolHandler(jiraListIssueTypesHandler))
 }
 
 func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueInput) (*mcp.CallToolResult, error) {

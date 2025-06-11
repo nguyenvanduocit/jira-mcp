@@ -8,7 +8,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -21,7 +20,7 @@ func RegisterJiraStatusTool(s *server.MCPServer) {
 		mcp.WithDescription("Retrieve all available issue status IDs and their names for a specific Jira project"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraStatusListTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraGetStatusesHandler)))
+	s.AddTool(jiraStatusListTool, mcp.NewTypedToolHandler(jiraGetStatusesHandler))
 }
 
 func jiraGetStatusesHandler(ctx context.Context, request mcp.CallToolRequest, input ListStatusesInput) (*mcp.CallToolResult, error) {

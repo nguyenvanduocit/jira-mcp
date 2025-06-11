@@ -10,7 +10,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
-	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -29,7 +28,7 @@ func RegisterJiraWorklogTool(s *server.MCPServer) {
 		mcp.WithString("comment", mcp.Description("Comment describing the work done")),
 		mcp.WithString("started", mcp.Description("When the work began, in ISO 8601 format (e.g., 2023-05-01T10:00:00.000+0000). Defaults to current time.")),
 	)
-	s.AddTool(jiraAddWorklogTool, util.ErrorGuard(mcp.NewTypedToolHandler(jiraAddWorklogHandler)))
+	s.AddTool(jiraAddWorklogTool, mcp.NewTypedToolHandler(jiraAddWorklogHandler))
 }
 
 func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest, input AddWorklogInput) (*mcp.CallToolResult, error) {
