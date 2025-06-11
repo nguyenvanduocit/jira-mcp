@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.10.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.9.0...v1.10.0) (2025-06-11)
+
+
+### Features
+
+* update foỏmat of sprint ([d378f75](https://github.com/nguyenvanduocit/jira-mcp/commit/d378f7510fb21b8f4fd3ee677d3a1cf54c2ad025))
+
 ## [1.9.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.8.0...v1.9.0) (2025-06-06)
 
 
