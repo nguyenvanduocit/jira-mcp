@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.11.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.10.0...v1.11.0) (2025-06-11)
+
+
+### Features
+
+* support streamable http ([a67657a](https://github.com/nguyenvanduocit/jira-mcp/commit/a67657a9649b53ec02a5b2a4eb0789810bc7b372))
+
 ## [1.10.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.9.0...v1.10.0) (2025-06-11)
 
 
