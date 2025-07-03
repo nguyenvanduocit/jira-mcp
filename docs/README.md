@@ -6,6 +6,18 @@ This directory contains comprehensive architecture diagrams and documentation fo
 
 The Jira MCP Connector enables AI assistants like Claude to interact with Atlassian Jira through structured tool calls. The project provides a seamless interface for AI models to perform common Jira operations including issue management, sprint operations, search functionality, and workflow management.
 
+## API Documentation
+
+### 📚 [Complete API Reference](API_REFERENCE.md)
+**Purpose**: Comprehensive documentation for all public APIs, functions, and components  
+**Coverage**: All 18 MCP tools, service layer APIs, utility functions, data types, examples  
+**Use Case**: Complete API reference for developers, integrators, and users
+
+### ⚡ [Quick Reference Guide](QUICK_REFERENCE.md)
+**Purpose**: Developer-friendly quick reference for common patterns and APIs  
+**Coverage**: Most used tools, service patterns, JQL examples, development tips  
+**Use Case**: Fast lookups and common usage patterns for developers
+
 ## Architecture Diagrams
 
 ### 1. [System Architecture Overview](01-system-architecture.md)
@@ -41,7 +53,9 @@ The Jira MCP Connector enables AI assistants like Claude to interact with Atlass
 ## Quick Navigation
 
 ### For Developers
-- **New to the project?** Start with [System Architecture Overview](01-system-architecture.md)
+- **New to the project?** Start with [System Architecture Overview](01-system-architecture.md) or [Quick Reference Guide](QUICK_REFERENCE.md)
+- **Need API details?** See [Complete API Reference](API_REFERENCE.md) for comprehensive documentation
+- **Quick lookups?** Use [Quick Reference Guide](QUICK_REFERENCE.md) for common patterns
 - **Adding new tools?** Check [Tool Implementation Pattern](03-tool-implementation-pattern.md)
 - **Understanding request flow?** See [Request Processing Flow](05-request-processing-flow.md)
 - **Working with services?** Review [Service Layer Architecture](04-service-layer-architecture.md)
@@ -49,10 +63,13 @@ The Jira MCP Connector enables AI assistants like Claude to interact with Atlass
 ### For DevOps/Deployment
 - **Deploying the connector?** See [Deployment & Configuration](06-deployment-configuration.md)
 - **Understanding integration?** Check [MCP Tool Request Flow](02-request-flow.md)
+- **Configuration reference?** See [API Reference](API_REFERENCE.md#configuration--setup)
 
 ### For Users/Integrators
-- **Available functionality?** Review [Deployment & Configuration](06-deployment-configuration.md) for tool listings
+- **Available tools?** Review [API Reference](API_REFERENCE.md#mcp-tool-apis) for all 18 tools
+- **Common usage?** Check [Quick Reference Guide](QUICK_REFERENCE.md#-most-used-mcp-tools)
 - **Integration setup?** See [Deployment & Configuration](06-deployment-configuration.md) for MCP configuration
+- **Tool examples?** See [API Reference](API_REFERENCE.md#examples--usage-patterns)
 
 ## Key Architectural Principles
 
