@@ -30,7 +30,7 @@ The Jira MCP Connector is a Model Control Protocol (MCP) server that enables AI 
 
 | Variable | Required | Description | Example |
 |----------|----------|-------------|---------|
-| `ATLASSIAN_HOST` | ✅ | Your Atlassian instance URL | `your-domain.atlassian.net` |
+| `ATLASSIAN_HOST` | ✅ | Your Atlassian instance URL | `https://your-domain.atlassian.net` |
 | `ATLASSIAN_EMAIL` | ✅ | Your Atlassian email address | `user@example.com` |
 | `ATLASSIAN_TOKEN` | ✅ | Your Atlassian API token | `ATATT3xFfGF0T...` |
 | `PROXY_URL` | ❌ | HTTP proxy URL (optional) | `http://proxy:8080` |
@@ -653,7 +653,7 @@ s.AddTool(tool, mcp.NewTypedToolHandler(handlerFunction))
 
 ```bash
 # Set environment variables
-export ATLASSIAN_HOST=your-domain.atlassian.net
+export ATLASSIAN_HOST=https://your-domain.atlassian.net
 export ATLASSIAN_EMAIL=your-email@example.com
 export ATLASSIAN_TOKEN=your-api-token
 
@@ -673,7 +673,7 @@ export ATLASSIAN_TOKEN=your-api-token
 ### Docker Deployment
 
 ```bash
-docker run -e ATLASSIAN_HOST=your-domain.atlassian.net \
+docker run -e ATLASSIAN_HOST=https://your-domain.atlassian.net \
            -e ATLASSIAN_EMAIL=your-email@example.com \
            -e ATLASSIAN_TOKEN=your-api-token \
            ghcr.io/nguyenvanduocit/jira-mcp:latest
