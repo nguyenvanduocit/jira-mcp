@@ -78,7 +78,7 @@ docker pull ghcr.io/nguyenvanduocit/jira-mcp:latest
 
 # Test it works (replace with your details)
 docker run --rm \
-  -e ATLASSIAN_HOST=your-company.atlassian.net \
+  -e ATLASSIAN_HOST=https://your-company.atlassian.net \
   -e ATLASSIAN_EMAIL=your-email@company.com \
   -e ATLASSIAN_TOKEN=your-api-token \
   ghcr.io/nguyenvanduocit/jira-mcp:latest \
@@ -118,7 +118,7 @@ go install github.com/nguyenvanduocit/jira-mcp@latest
       "command": "docker",
       "args": [
         "run", "--rm", "-i",
-        "-e", "ATLASSIAN_HOST=your-company.atlassian.net",
+        "-e", "ATLASSIAN_HOST=https://your-company.atlassian.net",
         "-e", "ATLASSIAN_EMAIL=your-email@company.com", 
         "-e", "ATLASSIAN_TOKEN=your-api-token",
         "ghcr.io/nguyenvanduocit/jira-mcp:latest"
@@ -135,7 +135,7 @@ go install github.com/nguyenvanduocit/jira-mcp@latest
     "jira": {
       "command": "/usr/local/bin/jira-mcp",
       "env": {
-        "ATLASSIAN_HOST": "your-company.atlassian.net",
+        "ATLASSIAN_HOST": "https://your-company.atlassian.net",
         "ATLASSIAN_EMAIL": "your-email@company.com",
         "ATLASSIAN_TOKEN": "your-api-token"
       }
@@ -172,7 +172,7 @@ Create a `.env` file for easier management:
 
 ```bash
 # .env file
-ATLASSIAN_HOST=your-company.atlassian.net
+ATLASSIAN_HOST=https://your-company.atlassian.net
 ATLASSIAN_EMAIL=your-email@company.com
 ATLASSIAN_TOKEN=your-api-token
 ```
