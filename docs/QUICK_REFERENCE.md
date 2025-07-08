@@ -6,7 +6,7 @@ A developer-friendly quick reference for the most commonly used APIs and pattern
 
 ### Environment Setup
 ```bash
-export ATLASSIAN_HOST=your-domain.atlassian.net
+export ATLASSIAN_HOST=https://your-domain.atlassian.net
 export ATLASSIAN_EMAIL=your-email@example.com  
 export ATLASSIAN_TOKEN=your-api-token
 ```
