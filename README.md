@@ -1,4 +1,5 @@
 # Jira MCP
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/nguyenvanduocit/jira-mcp)](https://archestra.ai/mcp-catalog/nguyenvanduocit__jira-mcp)
 
 A Go-based MCP (Model Control Protocol) connector for Jira that enables AI assistants like Claude to interact with Atlassian Jira. This tool provides a seamless interface for AI models to perform common Jira operations.
 
