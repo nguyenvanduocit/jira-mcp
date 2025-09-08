@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	jira "github.com/ctreminiom/go-atlassian/jira/v2"
+	jira "github.com/ctreminiom/go-atlassian/jira/v3"
 	"github.com/pkg/errors"
 )
 

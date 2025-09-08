@@ -4,7 +4,7 @@ This package provides utility functions for formatting Jira issues from golang s
 
 ## Functions
 
-### `FormatJiraIssue(issue *models.IssueSchemeV2) string`
+### `FormatJiraIssue(issue *models.IssueScheme) string`
 
 Converts a complete Jira issue struct to a detailed, formatted string representation. This function handles all available fields from the `IssueFieldsSchemeV2` struct and related schemas.
 

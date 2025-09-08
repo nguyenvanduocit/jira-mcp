@@ -108,7 +108,7 @@ func jiraLinkHandler(ctx context.Context, request mcp.CallToolRequest, input Lin
 	client := services.JiraClient()
 
 	// Create the link payload
-	payload := &models.LinkPayloadSchemeV2{
+	payload := &models.LinkPayloadSchemeV3{
 		InwardIssue: &models.LinkedIssueScheme{
 			Key: input.InwardIssue,
 		},
@@ -122,8 +122,11 @@ func jiraLinkHandler(ctx context.Context, request mcp.CallToolRequest, input Lin
 
 	// Add comment if provided
 	if input.Comment != "" {
-		payload.Comment = &models.CommentPayloadSchemeV2{
-			Body: input.Comment,
+		payload.Comment = &models.CommentPayloadScheme{
+			Body: &models.CommentNodeScheme{
+				Type: "text",
+				Text: input.Comment,
+			},
 		}
 	}
 

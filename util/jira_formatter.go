@@ -9,7 +9,7 @@ import (
 
 // FormatJiraIssue converts a Jira issue struct to a formatted string representation
 // It handles all available fields from IssueFieldsSchemeV2 and related schemas
-func FormatJiraIssue(issue *models.IssueSchemeV2) string {
+func FormatJiraIssue(issue *models.IssueScheme) string {
 	var sb strings.Builder
 
 	// Basic issue information
@@ -32,7 +32,7 @@ func FormatJiraIssue(issue *models.IssueSchemeV2) string {
 			sb.WriteString(fmt.Sprintf("Summary: %s\n", fields.Summary))
 		}
 
-		if fields.Description != "" {
+		if fields.Description != nil {
 			sb.WriteString(fmt.Sprintf("Description: %s\n", fields.Description))
 		}
 
@@ -272,7 +272,7 @@ func FormatJiraIssue(issue *models.IssueSchemeV2) string {
 
 // FormatJiraIssueCompact returns a compact single-line representation of a Jira issue
 // Useful for search results or lists
-func FormatJiraIssueCompact(issue *models.IssueSchemeV2) string {
+func FormatJiraIssueCompact(issue *models.IssueScheme) string {
 	if issue == nil {
 		return ""
 	}
