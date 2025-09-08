@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.11.0...v1.12.0) (2025-09-08)
+
+
+### Features
+
+* upgrade to Jira API v3 ([1b65607](https://github.com/nguyenvanduocit/jira-mcp/commit/1b6560750ac0f4d37b5cc2fdf004d15932b4346b))
+
 ## [1.11.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.10.0...v1.11.0) (2025-06-11)
 
 
