@@ -117,11 +117,18 @@ func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input
 func jiraCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest, input CreateIssueInput) (*mcp.CallToolResult, error) {
 	client := services.JiraClient()
 
-	var payload = models.IssueSchemeV2{
-		Fields: &models.IssueFieldsSchemeV2{
+	var payload = models.IssueScheme{
+		Fields: &models.IssueFieldsScheme{
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: input.ProjectKey},
-			Description: input.Description,
+			Description: &models.CommentNodeScheme{
+				Content: []*models.CommentNodeScheme{
+					{
+						Type: "text",
+						Text: input.Description,
+					},
+				},
+			},
 			IssueType:   &models.IssueTypeScheme{Name: input.IssueType},
 		},
 	}
@@ -156,11 +163,14 @@ func jiraCreateChildIssueHandler(ctx context.Context, request mcp.CallToolReques
 		issueType = input.IssueType
 	}
 
-	var payload = models.IssueSchemeV2{
-		Fields: &models.IssueFieldsSchemeV2{
+	var payload = models.IssueScheme{
+		Fields: &models.IssueFieldsScheme{
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: parentIssue.Fields.Project.Key},
-			Description: input.Description,
+			Description: &models.CommentNodeScheme{
+				Type: "text",
+				Text: input.Description,
+			},
 			IssueType:   &models.IssueTypeScheme{Name: issueType},
 			Parent:      &models.ParentScheme{Key: input.ParentIssueKey},
 		},
@@ -186,8 +196,8 @@ func jiraCreateChildIssueHandler(ctx context.Context, request mcp.CallToolReques
 func jiraUpdateIssueHandler(ctx context.Context, request mcp.CallToolRequest, input UpdateIssueInput) (*mcp.CallToolResult, error) {
 	client := services.JiraClient()
 
-	payload := &models.IssueSchemeV2{
-		Fields: &models.IssueFieldsSchemeV2{},
+	payload := &models.IssueScheme{
+		Fields: &models.IssueFieldsScheme{},
 	}
 
 	if input.Summary != "" {
@@ -195,7 +205,10 @@ func jiraUpdateIssueHandler(ctx context.Context, request mcp.CallToolRequest, in
 	}
 
 	if input.Description != "" {
-		payload.Fields.Description = input.Description
+		payload.Fields.Description = &models.CommentNodeScheme{
+			Type: "text",
+			Text: input.Description,
+		}
 	}
 
 	response, err := client.Issue.Update(ctx, input.IssueKey, true, payload, nil, nil)

@@ -55,15 +55,16 @@ func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest, inp
 		AdjustEstimate: "auto",
 	}
 
-	payload := &models.WorklogRichTextPayloadScheme{
+	payload := &models.WorklogADFPayloadScheme{
 		TimeSpentSeconds: timeSpentSeconds,
 		Started:          started,
 	}
 
 	// Add comment if provided
 	if input.Comment != "" {
-		payload.Comment = &models.CommentPayloadSchemeV2{
-			Body: input.Comment,
+		payload.Comment = &models.CommentNodeScheme{
+			Type: "text",
+			Text: input.Comment,
 		}
 	}
 
