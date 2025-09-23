@@ -27,6 +27,13 @@ type GetActiveSprintInput struct {
 	ProjectKey string `json:"project_key,omitempty"`
 }
 
+type SearchSprintByNameInput struct {
+	Name       string `json:"name" validate:"required"`
+	BoardID    string `json:"board_id,omitempty"`
+	ProjectKey string `json:"project_key,omitempty"`
+	ExactMatch bool   `json:"exact_match,omitempty"`
+}
+
 func RegisterJiraSprintTool(s *server.MCPServer) {
 	jiraListSprintTool := mcp.NewTool("list_sprints",
 		mcp.WithDescription("List all active and future sprints for a specific Jira board or project. Requires either board_id or project_key."),
@@ -47,6 +54,15 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
 	s.AddTool(jiraGetActiveSprintTool, mcp.NewTypedToolHandler(jiraGetActiveSprintHandler))
+
+	jiraSearchSprintByNameTool := mcp.NewTool("search_sprint_by_name",
+		mcp.WithDescription("Search for sprints by name across boards or projects. Supports both exact and partial name matching."),
+		mcp.WithString("name", mcp.Required(), mcp.Description("Sprint name to search for (case-insensitive)")),
+		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board to search in. Optional if project_key is provided.")),
+		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV) to search in. Optional if board_id is provided.")),
+		mcp.WithBoolean("exact_match", mcp.Description("If true, only return sprints with exact name match. Default is false (partial matching).")),
+	)
+	s.AddTool(jiraSearchSprintByNameTool, mcp.NewTypedToolHandler(searchSprintByNameHandler))
 }
 
 // Helper function to get board IDs either from direct board_id or by finding boards for a project
@@ -191,4 +207,66 @@ Board ID: %d`,
 	}
 
 	return mcp.NewToolResultText("No active sprint found."), nil
+}
+
+func searchSprintByNameHandler(ctx context.Context, request mcp.CallToolRequest, input SearchSprintByNameInput) (*mcp.CallToolResult, error) {
+	boardIDs, err := getBoardIDsFromInput(ctx, input.BoardID, input.ProjectKey)
+	if err != nil {
+		return nil, err
+	}
+
+	var matchingSprints []string
+	searchTerm := strings.ToLower(input.Name)
+
+	for _, boardID := range boardIDs {
+		// Get all sprints (active, future, and closed) for comprehensive search
+		sprints, response, err := services.AgileClient().Board.Sprints(ctx, boardID, 0, 100, []string{"active", "future", "closed"})
+		if err != nil {
+			if response != nil {
+				return nil, fmt.Errorf("failed to get sprints: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
+			}
+			return nil, fmt.Errorf("failed to get sprints: %v", err)
+		}
+
+		for _, sprint := range sprints.Values {
+			sprintNameLower := strings.ToLower(sprint.Name)
+
+			var isMatch bool
+			if input.ExactMatch {
+				isMatch = sprintNameLower == searchTerm
+			} else {
+				isMatch = strings.Contains(sprintNameLower, searchTerm)
+			}
+
+			if isMatch {
+				matchingSprints = append(matchingSprints, fmt.Sprintf(`ID: %d
+Name: %s
+State: %s
+Start Date: %s
+End Date: %s
+Complete Date: %s
+Board ID: %d
+Goal: %s`,
+					sprint.ID,
+					sprint.Name,
+					sprint.State,
+					sprint.StartDate,
+					sprint.EndDate,
+					sprint.CompleteDate,
+					boardID,
+					sprint.Goal))
+			}
+		}
+	}
+
+	if len(matchingSprints) == 0 {
+		matchType := "containing"
+		if input.ExactMatch {
+			matchType = "with exact name"
+		}
+		return mcp.NewToolResultText(fmt.Sprintf("No sprints found %s '%s'.", matchType, input.Name)), nil
+	}
+
+	result := strings.Join(matchingSprints, "\n\n")
+	return mcp.NewToolResultText(result), nil
 }
