@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.12.0...v1.12.1) (2025-09-23)
+
+
+### Bug Fixes
+
+* migrate JQL search to new API endpoint ([bf6b6a2](https://github.com/nguyenvanduocit/jira-mcp/commit/bf6b6a2a105c5e34a0cbc6c3495f711d70cd47aa))
+
 ## [1.12.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.11.0...v1.12.0) (2025-09-08)
 
 
