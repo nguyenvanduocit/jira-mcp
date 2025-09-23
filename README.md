@@ -1,8 +1,8 @@
-## Jira MCP for Jira
+## Jira MCP
 
-Practical Jira automation from Cursor/Claude. Manage issues, sprints, versions, comments, and transitions directly from your editor.
+Control Jira from Cursor/Claude. Create/update issues, manage sprints and versions, add comments/worklogs, and run transitions from your editor.
 
-### What you get
+### Capabilities
 - **Issues**: get/create/update, child issues, JQL search, transitions
 - **Sprints**: list sprints, get active sprint, move up to 50 issues
 - **Collaboration**: comments, worklogs, related issues (links)
