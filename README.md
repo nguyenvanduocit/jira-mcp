@@ -1,26 +1,21 @@
-## Jira MCP — Ship Jira work from your AI
+## Jira MCP for Jira
 
-Turn Jira into an AI command surface. Ask in plain language; get real work done — issues, sprints, versions — end‑to‑end.
+Practical Jira automation from Cursor/Claude. Manage issues, sprints, versions, comments, and transitions directly from your editor.
 
-### Why teams choose this over the official connector
-- **Sprint‑native control**: See, plan, and move issues across sprints in one command.
-- **Version‑aware tools**: List versions, inspect release status, work with unreleased targets.
-- **AI‑ready output**: Clean, compact formatting tuned for Claude/Cursor.
-- **Real‑world coverage**: Create/update issues, comments, worklogs, links, statuses, transitions.
-
-### What it can do (highlights)
+### What you get
 - **Issues**: get/create/update, child issues, JQL search, transitions
-- **Sprints**: list/get active sprint, move up to 50 issues
-- **Collaboration**: comments, worklogs, related issues
+- **Sprints**: list sprints, get active sprint, move up to 50 issues
+- **Collaboration**: comments, worklogs, related issues (links)
 - **Versions**: list and inspect released/unreleased versions
+- **Output**: compact text formatted for AI tools
 
-## Quick start (2 minutes)
+## Quick start
 
 ### 1) Get an API token
 Create one at `https://id.atlassian.com/manage-profile/security/api-tokens`.
 
 ### 2) Add to Cursor
-Pick Docker or Binary — both run via STDIO (no ports needed).
+Use Docker or a local binary (STDIO; no ports needed).
 
 #### Docker
 ```json
@@ -73,7 +68,7 @@ ATLASSIAN_EMAIL=your-email@company.com
 ATLASSIAN_TOKEN=your-api-token
 ```
 
-Run in HTTP mode (for debugging):
+HTTP mode (optional, for debugging):
 ```bash
 jira-mcp -env .env -http_port 3000
 ```
