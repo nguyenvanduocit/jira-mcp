@@ -80,15 +80,15 @@ graph TB
 ```mermaid
 graph TB
     subgraph "Tool Categories"
-        ISSUE["📋 Issue Management<br/>• get_issue<br/>• create_issue<br/>• update_issue<br/>• delete_issue<br/>• assign_issue"]
-        SEARCH["🔍 Search & Query<br/>• search_issues<br/>• jql_search<br/>• filter_issues"]
+        ISSUE["📋 Issue Management<br/>• jira_get_issue<br/>• jira_create_issue<br/>• jira_update_issue<br/>• jira_delete_issue<br/>• jira_assign_issue"]
+        SEARCH["🔍 Search & Query<br/>• jira_search_issues<br/>• jira_jql_search<br/>• jira_filter_issues"]
         SPRINT["🏃 Sprint Operations<br/>• get_sprint<br/>• create_sprint<br/>• start_sprint<br/>• complete_sprint<br/>• move_to_sprint"]
         STATUS["📊 Status Management<br/>• get_statuses<br/>• get_status_transitions"]
-        TRANS["🔄 Transitions<br/>• transition_issue<br/>• get_transitions"]
+        TRANS["🔄 Transitions<br/>• jira_transition_issue<br/>• jira_get_transitions"]
         WORK["⏱️ Worklog<br/>• add_worklog<br/>• get_worklog<br/>• update_worklog<br/>• delete_worklog"]
-        COMMENT["💬 Comments<br/>• add_comment<br/>• get_comments<br/>• update_comment<br/>• delete_comment"]
-        HIST["📚 History<br/>• get_issue_history<br/>• get_changelog"]
-        REL["🔗 Relationships<br/>• link_issues<br/>• get_issue_links<br/>• remove_link"]
+        COMMENT["💬 Comments<br/>• jira_add_comment<br/>• jira_get_comments<br/>• jira_update_comment<br/>• jira_delete_comment"]
+        HIST["📚 History<br/>• jira_get_issue_history<br/>• jira_get_changelog"]
+        REL["🔗 Relationships<br/>• jira_link_issues<br/>• jira_get_issue_links<br/>• jira_remove_link"]
     end
     
     subgraph "Service Clients"
@@ -263,7 +263,7 @@ sequenceDiagram
     
     Note over AI,API: Complete Request Processing Flow
     
-    AI->>+MCP: 📞 Tool Call Request<br/>{"tool": "get_issue", "params": {"issue_key": "PROJ-123"}}
+    AI->>+MCP: 📞 Tool Call Request<br/>{"tool": "jira_get_issue", "params": {"issue_key": "PROJ-123"}}
     MCP->>MCP: 🔍 Route to registered handler
     MCP->>+GUARD: 🛡️ ErrorGuard wrapper call
     

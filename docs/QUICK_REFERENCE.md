@@ -26,7 +26,7 @@ export ATLASSIAN_TOKEN=your-api-token
 ```json
 // Get issue details
 {
-  "name": "get_issue",
+  "name": "jira_get_issue",
   "arguments": {
     "issue_key": "PROJ-123"
   }
@@ -34,7 +34,7 @@ export ATLASSIAN_TOKEN=your-api-token
 
 // Create new issue
 {
-  "name": "create_issue", 
+  "name": "jira_create_issue", 
   "arguments": {
     "project_key": "PROJ",
     "summary": "Bug in login",
@@ -45,7 +45,7 @@ export ATLASSIAN_TOKEN=your-api-token
 
 // Search issues
 {
-  "name": "search_issue",
+  "name": "jira_search_issue",
   "arguments": {
     "jql": "project = PROJ AND status = 'In Progress'"
   }
@@ -56,7 +56,7 @@ export ATLASSIAN_TOKEN=your-api-token
 ```json
 // Add comment
 {
-  "name": "add_comment",
+  "name": "jira_add_comment",
   "arguments": {
     "issue_key": "PROJ-123",
     "comment": "Work completed"
@@ -261,14 +261,14 @@ Atlassian Jira API
 
 | Category | Tools | Main Use Cases |
 |----------|-------|----------------|
-| **Issues** (5) | get_issue, create_issue, update_issue, create_child_issue, list_issue_types | Core issue management |
-| **Search** (1) | search_issue | Find issues with JQL |
-| **Sprints** (3) | get_sprint, list_sprints, get_active_sprint | Agile/Scrum workflows |
+| **Issues** (5) | jira_get_issue, jira_create_issue, jira_update_issue, jira_create_child_issue, jira_list_issue_types | Core issue management |
+| **Search** (1) | jira_search_issue | Find issues with JQL |
+| **Sprints** (3) | jira_get_sprint, jira_list_sprints, jira_get_active_sprint | Agile/Scrum workflows |
 | **Status** (1) | list_statuses | Workflow information |
-| **Transitions** (1) | transition_issue | Move issues through workflow |
+| **Transitions** (1) | jira_transition_issue | Move issues through workflow |
 | **Worklogs** (1) | add_worklog | Time tracking |
-| **Comments** (2) | add_comment, get_comments | Communication |
-| **History** (1) | get_issue_history | Audit trail |
+| **Comments** (2) | jira_add_comment, jira_get_comments | Communication |
+| **History** (1) | jira_get_issue_history | Audit trail |
 | **Relationships** (2) | link_issues, get_related_issues | Issue dependencies |
 
 ## 🔧 Development Tips
@@ -287,7 +287,7 @@ Atlassian Jira API
 # Test endpoint
 curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"get_issue","arguments":{"issue_key":"PROJ-123"}}}'
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"jira_get_issue","arguments":{"issue_key":"PROJ-123"}}}'
 ```
 
 ### Common Gotchas

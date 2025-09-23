@@ -24,13 +24,13 @@ type LinkIssuesInput struct {
 }
 
 func RegisterJiraRelationshipTool(s *server.MCPServer) {
-	jiraRelationshipTool := mcp.NewTool("get_related_issues",
+	jiraRelationshipTool := mcp.NewTool("jira_get_related_issues",
 		mcp.WithDescription("Retrieve issues that have a relationship with a given issue, such as blocks, is blocked by, relates to, etc."),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
 	s.AddTool(jiraRelationshipTool, mcp.NewTypedToolHandler(jiraRelationshipHandler))
 
-	jiraLinkTool := mcp.NewTool("link_issues",
+	jiraLinkTool := mcp.NewTool("jira_link_issues",
 		mcp.WithDescription("Create a link between two Jira issues, defining their relationship (e.g., blocks, duplicates, relates to)"),
 		mcp.WithString("inward_issue", mcp.Required(), mcp.Description("The key of the inward issue (e.g., KP-1, PROJ-123)")),
 		mcp.WithString("outward_issue", mcp.Required(), mcp.Description("The key of the outward issue (e.g., KP-2, PROJ-123)")),

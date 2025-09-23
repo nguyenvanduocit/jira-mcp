@@ -107,17 +107,17 @@ type GetIssueInput struct {
 All the following tools have been migrated to typed tools:
 
 ### Issue Tools (`tools/jira_issue.go`)
-- `GetIssueInput` - get_issue tool
-- `CreateIssueInput` - create_issue tool
+- `GetIssueInput` - jira_get_issue tool
+- `CreateIssueInput` - jira_create_issue tool
 - `CreateChildIssueInput` - create_child_issue tool
 - `UpdateIssueInput` - update_issue tool
 - `ListIssueTypesInput` - list_issue_types tool
 
 ### Search Tools (`tools/jira_search.go`)
-- `SearchIssueInput` - search_issue tool
+- `SearchIssueInput` - jira_search_issue tool
 
 ### Sprint Tools (`tools/jira_sprint.go`)
-- `ListSprintsInput` - list_sprints tool
+- `ListSprintsInput` - jira_list_sprints tool
 - `GetSprintInput` - get_sprint tool
 - `GetActiveSprintInput` - get_active_sprint tool
 
@@ -129,17 +129,17 @@ All the following tools have been migrated to typed tools:
 - `ListStatusesInput` - list_statuses tool
 
 ### Transition Tools (`tools/jira_transition.go`)
-- `TransitionIssueInput` - transition_issue tool
+- `TransitionIssueInput` - jira_transition_issue tool
 
 ### Worklog Tools (`tools/jira_worklog.go`)
 - `AddWorklogInput` - add_worklog tool
 
 ### Comment Tools (`tools/jira_comment.go`)
-- `AddCommentInput` - add_comment tool
+- `AddCommentInput` - jira_add_comment tool
 - `GetCommentsInput` - get_comments tool
 
 ### History Tools (`tools/jira_history.go`)
-- `GetIssueHistoryInput` - get_issue_history tool
+- `GetIssueHistoryInput` - jira_get_issue_history tool
 
 ## Error Handling
 

@@ -31,20 +31,20 @@ graph TB
     
     subgraph "Example Tools by Category"
         subgraph "Issue Tools"
-            GET_ISSUE["get_issue"]
-            CREATE_ISSUE["create_issue"]
+            GET_ISSUE["jira_get_issue"]
+            CREATE_ISSUE["jira_create_issue"]
             UPDATE_ISSUE["update_issue"]
             LIST_TYPES["list_issue_types"]
         end
         
         subgraph "Sprint Tools"
             GET_SPRINT["get_sprint"]
-            LIST_SPRINTS["list_sprints"]
+            LIST_SPRINTS["jira_list_sprints"]
             GET_ACTIVE["get_active_sprint"]
         end
         
         subgraph "Search Tools"
-            SEARCH_ISSUE["search_issue"]
+            SEARCH_ISSUE["jira_search_issue"]
         end
         
         subgraph "Other Categories"
@@ -112,7 +112,7 @@ Each tool category has a registration function that:
 **Example:**
 ```go
 func RegisterJiraIssueTool(s *server.MCPServer) {
-    jiraGetIssueTool := mcp.NewTool("get_issue",
+    jiraGetIssueTool := mcp.NewTool("jira_get_issue",
         mcp.WithDescription("Retrieve detailed information..."),
         mcp.WithString("issue_key", mcp.Required(), mcp.Description("...")),
     )

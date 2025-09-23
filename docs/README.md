@@ -104,18 +104,18 @@ All tools follow the same implementation pattern:
 The connector provides **18 tools** across **9 categories**:
 
 ### Core Operations
-- **Issue Tools** (5): get_issue, create_issue, update_issue, create_child_issue, list_issue_types
-- **Search Tools** (1): search_issue
-- **Sprint Tools** (3): get_sprint, list_sprints, get_active_sprint
+- **Issue Tools** (5): jira_get_issue, jira_create_issue, jira_update_issue, jira_create_child_issue, jira_list_issue_types
+- **Search Tools** (1): jira_search_issue
+- **Sprint Tools** (3): jira_get_sprint, jira_list_sprints, jira_get_active_sprint
 
 ### Workflow Operations
 - **Status Tools** (1): list_statuses
-- **Transition Tools** (1): transition_issue
+- **Transition Tools** (1): jira_transition_issue
 - **Worklog Tools** (1): add_worklog
 
 ### Collaboration
-- **Comment Tools** (2): get_comments, add_comment
-- **History Tools** (1): get_issue_history
+- **Comment Tools** (2): jira_get_comments, jira_add_comment
+- **History Tools** (1): jira_get_issue_history
 - **Relationship Tools** (3): link_issues, get_related_issues
 
 ## Technology Stack

@@ -14,7 +14,7 @@ sequenceDiagram
     
     Note over AI,Format: MCP Tool Request Flow
     
-    AI->>+MCP: Tool Call Request<br/>(e.g., get_issue)
+    AI->>+MCP: Tool Call Request<br/>(e.g., jira_get_issue)
     MCP->>+Tool: Route to Handler<br/>(jiraGetIssueHandler)
     Tool->>+Guard: Wrapped Handler Call
     Guard->>+Tool: Execute Handler
