@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.13.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.12.1...v1.13.0) (2025-09-23)
+
+
+### Features
+
+* **docs:** rewrite README with clear USP and 2‑minute quick start ([69b7b20](https://github.com/nguyenvanduocit/jira-mcp/commit/69b7b20166c424efe485fa2403193105012f2973))
+
 ## [1.12.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.12.0...v1.12.1) (2025-09-23)
 
 
