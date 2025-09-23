@@ -44,11 +44,17 @@ While Atlassian provides an official MCP connector, our implementation offers **
 - **List project statuses** and available transitions
 - **Board and project integration** with automatic discovery
 
+### Version Management
+- **List project versions** with filtering options
+- **Get detailed version information** including release status
+- **Support for released and unreleased versions** management
+
 ### Advanced Features
 - **Bulk operations** support (move multiple issues to sprint)
 - **Flexible parameter handling** (board_id or project_key)
 - **Rich formatting** of responses for AI consumption
 - **Error handling** with detailed debugging information
+- **Latest API compatibility** with Jira API v3 and JQL search endpoints
 
 ## 🚀 Quick Start Guide
 
@@ -225,6 +231,11 @@ Once configured, you can ask Claude to help with Jira tasks using natural langua
 - *"Show me all bugs created this week"*
 - *"List all tickets that are blocked"*
 - *"What tickets are ready for testing?"*
+
+### Version Management
+- *"List all versions for project PROJ"*
+- *"Show me details for version 2.1.0"*
+- *"What versions are unreleased in our project?"*
 
 ## 🛠️ Troubleshooting
 
