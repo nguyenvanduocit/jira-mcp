@@ -38,25 +38,25 @@ graph TB
     
     subgraph "Available Tools"
         subgraph "Core Operations"
-            ISSUE_TOOLS["Issue Management<br/>- get_issue<br/>- create_issue<br/>- update_issue<br/>- create_child_issue<br/>- list_issue_types"]
+            ISSUE_TOOLS["Issue Management<br/>- jira_get_issue<br/>- jira_create_issue<br/>- jira_update_issue<br/>- jira_create_child_issue<br/>- jira_list_issue_types"]
             
-            SEARCH_TOOLS["Search & Query<br/>- search_issue (JQL)"]
+            SEARCH_TOOLS["Search & Query<br/>- jira_search_issue (JQL)"]
             
-            SPRINT_TOOLS["Sprint Management<br/>- get_sprint<br/>- list_sprints<br/>- get_active_sprint"]
+            SPRINT_TOOLS["Sprint Management<br/>- jira_get_sprint<br/>- jira_list_sprints<br/>- jira_get_active_sprint"]
         end
         
         subgraph "Workflow Operations"
             STATUS_TOOLS["Status Management<br/>- list_statuses"]
             
-            TRANSITION_TOOLS["Issue Transitions<br/>- transition_issue"]
+            TRANSITION_TOOLS["Issue Transitions<br/>- jira_transition_issue"]
             
             WORKLOG_TOOLS["Time Tracking<br/>- add_worklog"]
         end
         
         subgraph "Collaboration"
-            COMMENT_TOOLS["Comments<br/>- get_comments<br/>- add_comment"]
+            COMMENT_TOOLS["Comments<br/>- jira_get_comments<br/>- jira_add_comment"]
             
-            HISTORY_TOOLS["Change History<br/>- get_issue_history"]
+            HISTORY_TOOLS["Change History<br/>- jira_get_issue_history"]
             
             RELATIONSHIP_TOOLS["Issue Relationships<br/>- link_issues<br/>- get_related_issues"]
         end

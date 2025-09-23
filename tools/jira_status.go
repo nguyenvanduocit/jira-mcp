@@ -16,7 +16,7 @@ type ListStatusesInput struct {
 }
 
 func RegisterJiraStatusTool(s *server.MCPServer) {
-	jiraStatusListTool := mcp.NewTool("list_statuses",
+	jiraStatusListTool := mcp.NewTool("jira_list_statuses",
 		mcp.WithDescription("Retrieve all available issue status IDs and their names for a specific Jira project"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier (e.g., KP, PROJ)")),
 	)

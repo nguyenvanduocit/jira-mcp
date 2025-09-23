@@ -158,7 +158,7 @@ func RegisterJira<Category>Tool(s *server.MCPServer) {
 
 #### 1. Get Issue
 
-**Tool Name**: `get_issue`  
+**Tool Name**: `jira_get_issue`  
 **Handler**: `jiraGetIssueHandler`  
 **Input Type**: `GetIssueInput`
 
@@ -178,7 +178,7 @@ type GetIssueInput struct {
 **Example**:
 ```json
 {
-    "name": "get_issue",
+    "name": "jira_get_issue",
     "arguments": {
         "issue_key": "PROJ-123",
         "fields": "summary,status,assignee",
@@ -189,7 +189,7 @@ type GetIssueInput struct {
 
 #### 2. Create Issue
 
-**Tool Name**: `create_issue`  
+**Tool Name**: `jira_create_issue`  
 **Handler**: `jiraCreateIssueHandler`  
 **Input Type**: `CreateIssueInput`
 
@@ -205,7 +205,7 @@ type CreateIssueInput struct {
 **Example**:
 ```json
 {
-    "name": "create_issue",
+    "name": "jira_create_issue",
     "arguments": {
         "project_key": "PROJ",
         "summary": "Fix login bug",
@@ -260,7 +260,7 @@ type ListIssueTypesInput struct {
 
 #### Search Issues
 
-**Tool Name**: `search_issue`  
+**Tool Name**: `jira_search_issue`  
 **Handler**: `jiraSearchHandler`  
 **Input Type**: `SearchIssueInput`
 
@@ -275,7 +275,7 @@ type SearchIssueInput struct {
 **Example**:
 ```json
 {
-    "name": "search_issue",
+    "name": "jira_search_issue",
     "arguments": {
         "jql": "project = PROJ AND status = \"In Progress\"",
         "fields": "summary,status,assignee",
@@ -299,7 +299,7 @@ type GetSprintInput struct {
 
 #### 2. List Sprints
 
-**Tool Name**: `list_sprints`  
+**Tool Name**: `jira_list_sprints`  
 **Input Type**: `ListSprintsInput`
 
 ```go
@@ -337,7 +337,7 @@ type ListStatusesInput struct {
 
 #### Transition Issue
 
-**Tool Name**: `transition_issue`  
+**Tool Name**: `jira_transition_issue`  
 **Input Type**: `TransitionIssueInput`
 
 ```go
@@ -380,7 +380,7 @@ type AddWorklogInput struct {
 
 #### 1. Add Comment
 
-**Tool Name**: `add_comment`  
+**Tool Name**: `jira_add_comment`  
 **Input Type**: `AddCommentInput`
 
 ```go
@@ -405,7 +405,7 @@ type GetCommentsInput struct {
 
 #### Get Issue History
 
-**Tool Name**: `get_issue_history`  
+**Tool Name**: `jira_get_issue_history`  
 **Input Type**: `GetIssueHistoryInput`
 
 ```go
