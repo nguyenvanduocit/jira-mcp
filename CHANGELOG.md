@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.15.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.14.0...v1.15.0) (2025-10-07)
+
+
+### Features
+
+* add development information tool for Jira issues ([b0c2ec8](https://github.com/nguyenvanduocit/jira-mcp/commit/b0c2ec84de8d71be7ddb7cdaf976c31ea803ef8b))
+
 ## [1.14.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.13.0...v1.14.0) (2025-09-23)
 
 
