@@ -1,0 +1,301 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "Jira Get Development Information Tool Contract",
+  "description": "MCP tool contract for retrieving development information (branches, pull requests, commits) linked to a Jira issue",
+  "type": "object",
+  "properties": {
+    "tool": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "const": "jira_get_development_information"
+        },
+        "description": {
+          "type": "string",
+          "const": "Retrieve branches, pull requests, and commits linked to a Jira issue via development tool integrations (GitHub, GitLab, Bitbucket). Returns human-readable formatted text showing all development work associated with the issue."
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "issue_key": {
+              "type": "string",
+              "description": "The Jira issue key (e.g., PROJ-123)",
+              "pattern": "^[A-Z]+-[0-9]+$",
+              "examples": ["PROJ-123", "KP-42", "TEAM-999"]
+            },
+            "include_branches": {
+              "type": "boolean",
+              "description": "Include branches in the response (default: true)",
+              "default": true
+            },
+            "include_pull_requests": {
+              "type": "boolean",
+              "description": "Include pull requests in the response (default: true)",
+              "default": true
+            },
+            "include_commits": {
+              "type": "boolean",
+              "description": "Include commits in the response (default: true)",
+              "default": true
+            }
+          },
+          "required": ["issue_key"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["name", "description", "inputSchema"]
+    },
+    "handler": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "typed"
+        },
+        "signature": {
+          "type": "string",
+          "const": "func(ctx context.Context, request mcp.CallToolRequest, input GetDevelopmentInfoInput) (*mcp.CallToolResult, error)"
+        }
+      }
+    },
+    "responses": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "const": "text"
+            },
+            "contentType": {
+              "type": "string",
+              "const": "plain/text"
+            },
+            "structure": {
+              "type": "string",
+              "description": "Formatted text with sections for branches, pull requests, and commits, separated by === dividers"
+            },
+            "example": {
+              "type": "string",
+              "const": "Development Information for PROJ-123:\n\n=== Branches (2) ===\n\nBranch: feature/PROJ-123-login\nRepository: company/backend-api\nLast Commit: abc1234 - \"Add login endpoint\"\nURL: https://github.com/company/backend-api/tree/feature/PROJ-123-login\n\n=== Pull Requests (1) ===\n\nPR #42: Add login functionality\nStatus: OPEN\nAuthor: John Doe (john@company.com)\nRepository: company/backend-api\nURL: https://github.com/company/backend-api/pull/42\nLast Updated: 2025-10-07 14:30:00"
+            }
+          }
+        },
+        "empty": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "const": "text"
+            },
+            "message": {
+              "type": "string",
+              "const": "Development Information for {issue_key}:\n\nNo branches, pull requests, or commits found.\n\nThis may mean:\n- No development work has been linked to this issue\n- The Jira-GitHub/GitLab/Bitbucket integration is not configured\n- You lack permissions to view development information"
+            }
+          }
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "format": {
+              "type": "string",
+              "const": "error"
+            },
+            "cases": {
+              "type": "array",
+              "items": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "case": {
+                      "const": "invalid_issue_key"
+                    },
+                    "httpStatus": {
+                      "const": 400
+                    },
+                    "message": {
+                      "const": "invalid issue key format: {issue_key} (expected format: PROJ-123)"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "case": {
+                      "const": "issue_not_found"
+                    },
+                    "httpStatus": {
+                      "const": 404
+                    },
+                    "message": {
+                      "const": "failed to retrieve development information: issue not found (endpoint: /rest/api/3/issue/{issue_key})"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "case": {
+                      "const": "unauthorized"
+                    },
+                    "httpStatus": {
+                      "const": 401
+                    },
+                    "message": {
+                      "const": "failed to retrieve development information: authentication failed (endpoint: /rest/dev-status/1.0/issue/detail)"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "case": {
+                      "const": "api_error"
+                    },
+                    "httpStatus": {
+                      "const": 500
+                    },
+                    "message": {
+                      "const": "failed to retrieve development information: {error_message} (endpoint: {endpoint})"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "description": "Get all development information for an issue",
+      "request": {
+        "issue_key": "PROJ-123"
+      },
+      "response": {
+        "type": "success",
+        "output": "Development Information for PROJ-123:\n\n=== Branches (2) ===\n..."
+      }
+    },
+    {
+      "description": "Get only branches and pull requests",
+      "request": {
+        "issue_key": "PROJ-123",
+        "include_commits": false
+      },
+      "response": {
+        "type": "success",
+        "output": "Development Information for PROJ-123:\n\n=== Branches (2) ===\n...\n=== Pull Requests (1) ===\n..."
+      }
+    },
+    {
+      "description": "Get only branches",
+      "request": {
+        "issue_key": "PROJ-123",
+        "include_branches": true,
+        "include_pull_requests": false,
+        "include_commits": false
+      },
+      "response": {
+        "type": "success",
+        "output": "Development Information for PROJ-123:\n\n=== Branches (2) ===\n..."
+      }
+    },
+    {
+      "description": "Issue with no development information",
+      "request": {
+        "issue_key": "PROJ-456"
+      },
+      "response": {
+        "type": "empty",
+        "output": "Development Information for PROJ-456:\n\nNo branches, pull requests, or commits found..."
+      }
+    },
+    {
+      "description": "Invalid issue key format",
+      "request": {
+        "issue_key": "invalid-key"
+      },
+      "response": {
+        "type": "error",
+        "error": "invalid issue key format: invalid-key (expected format: PROJ-123)"
+      }
+    }
+  ],
+  "registration": {
+    "location": "main.go",
+    "function": "tools.RegisterJiraDevelopmentTool(mcpServer)",
+    "pattern": "All Jira tools are registered in main.go via RegisterJira*Tool functions"
+  },
+  "implementation": {
+    "file": "tools/jira_development.go",
+    "inputStruct": "GetDevelopmentInfoInput",
+    "handler": "jiraGetDevelopmentInfoHandler",
+    "client": "services.JiraClient() (singleton)",
+    "formatting": "Inline string builder (no util function)"
+  },
+  "dependencies": {
+    "external": [
+      {
+        "name": "go-atlassian",
+        "version": "v1.6.1",
+        "usage": "client.NewRequest() and client.Call() for custom API endpoint"
+      },
+      {
+        "name": "mcp-go",
+        "version": "v0.32.0",
+        "usage": "MCP tool registration and typed handler"
+      }
+    ],
+    "internal": [
+      {
+        "package": "services",
+        "function": "JiraClient()",
+        "usage": "Singleton Jira client instance"
+      }
+    ]
+  },
+  "apiEndpoints": {
+    "primary": {
+      "path": "/rest/dev-status/1.0/issue/detail",
+      "method": "GET",
+      "parameters": {
+        "issueId": "Numeric issue ID (not issue key)",
+        "applicationType": "Optional: github, bitbucket, or stash",
+        "dataType": "Optional: repository, pullrequest, or branch"
+      },
+      "documentation": "Undocumented internal API - no official Atlassian documentation"
+    },
+    "secondary": {
+      "path": "/rest/api/3/issue/{issueKeyOrId}",
+      "method": "GET",
+      "usage": "Convert issue key to numeric ID before calling dev-status endpoint"
+    }
+  },
+  "testing": {
+    "unit": {
+      "location": "tools/jira_development_test.go",
+      "coverage": [
+        "Tool registration succeeds",
+        "Input validation enforces required fields",
+        "Handler signature matches typed pattern"
+      ]
+    },
+    "integration": {
+      "location": "tests/development_test.go",
+      "prerequisites": [
+        "Live Jira instance with dev integration configured",
+        "Test issue with linked branches/PRs/commits"
+      ],
+      "coverage": [
+        "Retrieve development information for valid issue",
+        "Handle issue with no development information",
+        "Handle invalid issue key",
+        "Filter by include flags"
+      ]
+    }
+  }
+}
