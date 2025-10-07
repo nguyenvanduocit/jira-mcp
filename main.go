@@ -92,6 +92,7 @@ func main() {
 	tools.RegisterJiraHistoryTool(mcpServer)
 	tools.RegisterJiraRelationshipTool(mcpServer)
 	tools.RegisterJiraVersionTool(mcpServer)
+	tools.RegisterJiraDevelopmentTool(mcpServer)
 
 	if *httpPort != "" {
 		fmt.Println()
