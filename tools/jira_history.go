@@ -2,7 +2,6 @@ package tools
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -110,11 +109,6 @@ func jiraGetIssueHistoryHandler(ctx context.Context, request mcp.CallToolRequest
 		History:  historyEntries,
 		Count:    len(historyEntries),
 	}
-	
-	jsonData, err := json.Marshal(output)
-	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("failed to marshal result: %v", err)), nil
-	}
-	
-	return mcp.NewToolResultText(string(jsonData)), nil
+
+	return mcp.NewToolResultJSON(output)
 } 
