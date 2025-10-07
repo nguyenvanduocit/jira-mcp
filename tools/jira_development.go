@@ -12,6 +12,7 @@ import (
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
 	"github.com/tidwall/gjson"
+	"gopkg.in/yaml.v3"
 )
 
 // GetDevelopmentInfoInput defines input parameters for jira_get_development_information tool.
@@ -269,12 +270,12 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 			errorResp := map[string]interface{}{
 				"issueKey":     input.IssueKey,
 				"error":        "Dev-status API endpoint not found",
-				"branches":     []Branch{},
-				"pullRequests": []PullRequest{},
-				"repositories": []Repository{},
 			}
-			jsonData, _ := json.Marshal(errorResp)
-			return mcp.NewToolResultText(string(jsonData)), nil
+			yamlBytes, err := yaml.Marshal(errorResp)
+			if err != nil {
+				return nil, fmt.Errorf("failed to marshal error response to YAML: %w", err)
+			}
+			return mcp.NewToolResultText(string(yamlBytes)), nil
 		}
 		return nil, fmt.Errorf("failed to retrieve development summary: %w", err)
 	}
@@ -299,13 +300,12 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		emptyResp := map[string]interface{}{
 			"issueKey":     input.IssueKey,
 			"message":      "No development integrations found",
-			"branches":     []Branch{},
-			"pullRequests": []PullRequest{},
-			"repositories": []Repository{},
-			"builds":       []Build{},
 		}
-		jsonData, _ := json.Marshal(emptyResp)
-		return mcp.NewToolResultText(string(jsonData)), nil
+		yamlBytes, err := yaml.Marshal(emptyResp)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal empty response to YAML: %w", err)
+		}
+		return mcp.NewToolResultText(string(yamlBytes)), nil
 	}
 
 	// Step 3: Call detail endpoint for each (appType, dataType) pair from summary
@@ -365,7 +365,7 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		filteredBuilds = allBuilds
 	}
 
-	// Build JSON response
+	// Build YAML response
 	result := map[string]interface{}{
 		"issueKey":     input.IssueKey,
 		"branches":     filteredBranches,
@@ -374,10 +374,10 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		"builds":       filteredBuilds,
 	}
 
-	jsonData, err := json.Marshal(result)
+	yamlBytes, err := yaml.Marshal(result)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal response: %w", err)
+		return nil, fmt.Errorf("failed to marshal result to YAML: %w", err)
 	}
 
-	return mcp.NewToolResultText(string(jsonData)), nil
+	return mcp.NewToolResultText(string(yamlBytes)), nil
 }
