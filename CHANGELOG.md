@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.15.0...v1.16.0) (2025-10-07)
+
+
+### Features
+
+* add build information support and prompts functionality ([d3df256](https://github.com/nguyenvanduocit/jira-mcp/commit/d3df256f80a181e80eca0510583e9771c47b9a58))
+
 ## [1.15.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.14.0...v1.15.0) (2025-10-07)
 
 
