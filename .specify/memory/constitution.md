@@ -1,14 +1,19 @@
 <!--
 Sync Impact Report
 ==================
-Version Change: N/A → 1.0.0 (Initial ratification)
-Modified Principles: N/A (Initial creation)
-Added Sections: All (Initial creation)
-Removed Sections: N/A
+Version Change: 1.0.0 → 1.1.0 (Minor - Expanded guidance on typed tools, ADF formatting, and development information)
+Modified Principles:
+  - Type Safety & Validation: Enhanced with comprehensive typed tools guidance from migration
+  - AI-First Output Design: Added Atlassian Document Format (ADF) requirements for comments
+Added Sections:
+  - VII. Development Information Integration principle
+  - Enhanced Tool Implementation Standards with ADF comment formatting
+  - Expanded Type Safety section with typed tools migration patterns
+Removed Sections: None
 Templates Updated:
-  ✅ plan-template.md - Added detailed Constitution Check gates for MCP compliance, AI-first output, simplicity, type safety, resource efficiency, and testing
-  ✅ spec-template.md - Updated Functional Requirements examples to reflect MCP tool patterns, parameters, and LLM-optimized output
-  ✅ tasks-template.md - Updated Setup phase and Implementation phase to reflect Go/MCP-specific structure (tools/, util/, typed handlers)
+  ✅ plan-template.md - Constitution Check already comprehensive
+  ✅ spec-template.md - Functional Requirements examples already reflect MCP patterns
+  ✅ tasks-template.md - Implementation phase already reflects typed handlers
 Follow-up TODOs: None
 -->
 
@@ -38,8 +43,9 @@ All tool responses MUST be formatted for AI/LLM consumption, prioritizing readab
 - Include context in output (e.g., "Issue created successfully!" with key/URL)
 - Structured data uses clear labels and hierarchical formatting
 - Error messages include actionable context (endpoint, status, hint)
+- Comments MUST use Atlassian Document Format (ADF) with proper structure (see Tool Implementation Standards)
 
-**Rationale:** The end consumer is an LLM, not a human or parsing script. Output must be self-documenting.
+**Rationale:** The end consumer is an LLM, not a human or parsing script. Output must be self-documenting. Jira API requires ADF for rich text fields like comments.
 
 ### III. Simplicity Over Abstraction
 
@@ -60,12 +66,42 @@ All tool inputs MUST use structured types with JSON tags and validation annotati
 
 **Requirements:**
 - Define `<Operation>Input` structs for each tool handler
-- Use JSON tags matching MCP parameter names
+- Use JSON tags matching MCP parameter names (`json:"field_name"`)
 - Add `validate:"required"` for mandatory fields
+- Use `json:"field,omitempty"` for optional fields
 - Use typed handlers: `mcp.NewTypedToolHandler(handler)`
 - Handler signatures: `func(ctx context.Context, request mcp.CallToolRequest, input <Type>) (*mcp.CallToolResult, error)`
 
-**Rationale:** Type safety catches errors at compile time. Validation ensures LLMs provide correct parameters.
+**Migration Pattern (from typed-tools-migration.md):**
+
+```go
+// 1. Define input struct with validation
+type GetIssueInput struct {
+    IssueKey string `json:"issue_key" validate:"required"`
+    Fields   string `json:"fields,omitempty"`
+    Expand   string `json:"expand,omitempty"`
+}
+
+// 2. Update handler signature to accept typed input
+func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueInput) (*mcp.CallToolResult, error) {
+    client := services.JiraClient()
+    // Direct access to validated parameters - no type assertions needed
+    issue, response, err := client.Issue.Get(ctx, input.IssueKey, fields, expand)
+    // ...
+}
+
+// 3. Register with typed handler wrapper
+s.AddTool(jiraGetIssueTool, mcp.NewTypedToolHandler(jiraGetIssueHandler))
+```
+
+**Benefits:**
+- Compile-time type safety prevents runtime errors
+- Automatic validation via `validate` tags
+- Eliminates manual parameter extraction and type assertions
+- Reduces boilerplate code by 30-40%
+- IDE autocomplete and type checking support
+
+**Rationale:** Type safety catches errors at compile time. Validation ensures LLMs provide correct parameters. Typed tools improve developer experience and code maintainability.
 
 ### V. Resource Efficiency
 
@@ -73,6 +109,7 @@ Client connections and expensive resources MUST use singleton patterns.
 
 **Requirements:**
 - `services.JiraClient()` implemented with `sync.OnceValue`
+- `services.AgileClient()` implemented with `sync.OnceValue`
 - Single Jira client instance reused across all tool invocations
 - No connection pooling or per-request client creation
 - HTTP server (when used) shares same singleton client
@@ -90,7 +127,43 @@ Errors MUST provide sufficient context for debugging without access to logs.
 - Return structured error text via `return nil, fmt.Errorf(...)`
 - Validation errors mention field name and expected format
 
+**Error Pattern:**
+```go
+result, response, err := client.Operation(ctx, params...)
+if err != nil {
+    if response != nil {
+        return nil, fmt.Errorf("failed to <op>: %s (endpoint: %s)",
+            response.Bytes.String(), response.Endpoint)
+    }
+    return nil, fmt.Errorf("failed to <op>: %v", err)
+}
+```
+
 **Rationale:** Users debug through AI assistants reading error messages. Opaque errors create friction.
+
+### VII. Development Information Integration
+
+Tools that expose issue data MUST include development information (branches, PRs, commits) when available.
+
+**Requirements:**
+- Use `client.Issue.Metadata.Get()` to fetch development information
+- Check for development details in metadata: `DevelopmentInformation.Details`
+- Format development info with clear sections for branches, pull requests, commits
+- Include repository names, branch names, PR titles/status, commit messages
+- Handle missing development information gracefully
+
+**Example:**
+```go
+// Get development information
+metadata, metaResponse, metaErr := client.Issue.Metadata.Get(ctx, issueKey)
+if metaErr == nil && metadata != nil && metadata.Fields != nil {
+    if devInfo := metadata.Fields.DevelopmentInformation; devInfo != nil && len(devInfo.Details) > 0 {
+        formattedOutput += util.FormatDevelopmentInfo(devInfo.Details)
+    }
+}
+```
+
+**Rationale:** AI assistants benefit from seeing the complete context of an issue, including related code changes. This enables better recommendations and understanding of implementation status.
 
 ## Tool Implementation Standards
 
@@ -133,6 +206,38 @@ func jira<Operation>Handler(ctx context.Context, request mcp.CallToolRequest, in
 }
 ```
 
+### ADF Comment Formatting
+
+Comments MUST use Atlassian Document Format (ADF) structure:
+
+```go
+func buildADFComment(text string) *models.CommentPayloadSchemeV2 {
+    return &models.CommentPayloadSchemeV2{
+        Body: &models.CommentNodeScheme{
+            Version: 1,
+            Type:    "doc",
+            Content: []*models.CommentNodeScheme{
+                {
+                    Type: "paragraph",
+                    Content: []*models.CommentNodeScheme{
+                        {
+                            Type: "text",
+                            Text: text,
+                        },
+                    },
+                },
+            },
+        },
+    }
+}
+```
+
+**Requirements:**
+- Version MUST be 1
+- Root type MUST be "doc"
+- Content MUST be wrapped in paragraph nodes
+- Text nodes contain actual comment text
+
 ### Tool Naming Convention
 
 - Prefix: `jira_` (REQUIRED for LLM discoverability)
@@ -171,6 +276,8 @@ Before registering a new tool, verify:
 - [ ] Error messages include endpoint context
 - [ ] Output is formatted via util function (if reusable)
 - [ ] Tool registered in main.go
+- [ ] Development information included (for issue-related tools)
+- [ ] Comments use ADF format (if applicable)
 
 ## Governance
 
@@ -214,4 +321,4 @@ Developers (AI and human) working in this repository MUST consult `CLAUDE.md` fo
 
 `CLAUDE.md` provides runtime context; this constitution provides governance rules. Both are authoritative.
 
-**Version**: 1.0.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-07
+**Version**: 1.1.0 | **Ratified**: 2025-10-07 | **Last Amended**: 2025-10-07
