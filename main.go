@@ -11,6 +11,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/nguyenvanduocit/jira-mcp/prompts"
 	"github.com/nguyenvanduocit/jira-mcp/tools"
 )
 
@@ -93,6 +94,9 @@ func main() {
 	tools.RegisterJiraRelationshipTool(mcpServer)
 	tools.RegisterJiraVersionTool(mcpServer)
 	tools.RegisterJiraDevelopmentTool(mcpServer)
+
+	// Register all Jira prompts
+	prompts.RegisterJiraPrompts(mcpServer)
 
 	if *httpPort != "" {
 		fmt.Println()
