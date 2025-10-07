@@ -10,20 +10,16 @@ This is a Jira MCP (Model Control Protocol) connector written in Go that enables
 
 ```bash
 # Build the project
-bun run build
-# or
-just build
+go build -o jira-mcp .
 
-# Run in development mode with HTTP server
-bun run dev
-# or
-just dev
+# Run in development mode with HTTP server (requires .env file)
+go run . --env .env --http_port 3002
 
-# Build and install locally
-just install
+# Run tests
+go test ./...
 
-# Test the binary (requires .env file with credentials)
-./jira-mcp --env .env --http_port 3002
+# Install locally
+go install
 
 # Use go doc to understand packages and types
 go doc <pkg>
@@ -45,24 +41,40 @@ go doc <sym>[.<methodOrField>]
 
 ### Tool Implementation Pattern
 
-Each Jira operation follows this consistent pattern:
+Each Jira operation follows this consistent pattern using **typed handlers**:
 
-1. **Registration Function** (`RegisterJira<Category>Tool`) - Creates tool definitions and registers them with the MCP server
-2. **Handler Function** - Processes tool calls by:
-   - Getting the Jira client from services
-   - Extracting and validating parameters
-   - Making Jira API calls
-   - Formatting responses as text or JSON
-3. **Error Handling** - All handlers wrapped with `util.ErrorGuard()` for consistent error handling
+1. **Input Struct** - Define typed input with validation tags
+2. **Registration Function** (`RegisterJira<Category>Tool`) - Creates tool definitions and registers them with the MCP server
+3. **Typed Handler Function** - Processes tool calls with compile-time type safety
 
 Example tool structure:
 ```go
+// 1. Define input struct with validation
+type GetIssueInput struct {
+    IssueKey string `json:"issue_key" validate:"required"`
+    Fields   string `json:"fields,omitempty"`
+    Expand   string `json:"expand,omitempty"`
+}
+
+// 2. Registration function
 func RegisterJiraIssueTool(s *server.MCPServer) {
-    tool := mcp.NewTool("get_issue",
+    tool := mcp.NewTool("jira_get_issue",
         mcp.WithDescription("..."),
         mcp.WithString("issue_key", mcp.Required(), mcp.Description("...")),
+        mcp.WithString("fields", mcp.Description("...")),
     )
-    s.AddTool(tool, util.ErrorGuard(jiraGetIssueHandler))
+    s.AddTool(tool, mcp.NewTypedToolHandler(jiraGetIssueHandler))
+}
+
+// 3. Typed handler with automatic validation
+func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueInput) (*mcp.CallToolResult, error) {
+    client := services.JiraClient()
+    // Direct access to validated parameters - no type assertions needed
+    issue, response, err := client.Issue.Get(ctx, input.IssueKey, fields, expand)
+    if err != nil {
+        return nil, fmt.Errorf("failed to get issue: %v", err)
+    }
+    return mcp.NewToolResultText(util.FormatIssue(issue)), nil
 }
 ```
 
@@ -71,11 +83,12 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 - **Search** - JQL-based issue searching
 - **Sprint Management** - List sprints, move issues between sprints
 - **Status & Transitions** - Get available statuses and transition issues
-- **Comments** - Add and retrieve issue comments
+- **Comments** - Add and retrieve issue comments (uses Atlassian Document Format)
 - **Worklogs** - Time tracking functionality
 - **History** - Issue change history and audit logs
 - **Relationships** - Link and relate issues
 - **Versions** - Project version management
+- **Development Information** - Retrieve branches, pull requests, and commits linked to issues
 
 ## Configuration
 
@@ -102,12 +115,39 @@ The project includes:
 - Docker support with multi-stage builds
 - GitHub Actions for automated releases
 - Binary releases for multiple platforms (macOS, Linux, Windows)
-- justfile for common development tasks
 
 ## Code Conventions
 
 - Use structured input types for tool parameters with JSON tags and validation
 - All tool handlers should return `*mcp.CallToolResult` with formatted text or JSON
-- Error handling should be consistent using the util.ErrorGuard wrapper
 - Client initialization should use the singleton pattern from services package
 - Response formatting should be human-readable for AI consumption
+- Comments MUST use Atlassian Document Format (ADF) with proper structure:
+  ```go
+  // ADF structure for comments
+  Body: &models.CommentNodeScheme{
+      Version: 1,
+      Type:    "doc",
+      Content: []*models.CommentNodeScheme{
+          {
+              Type: "paragraph",
+              Content: []*models.CommentNodeScheme{
+                  {Type: "text", Text: "comment text"},
+              },
+          },
+      },
+  }
+  ```
+
+## Governance
+
+This project follows strict governance principles documented in `.specify/memory/constitution.md`. Key principles include:
+
+- **MCP Protocol Compliance** - All functionality MUST be exposed as MCP tools
+- **AI-First Output Design** - Responses formatted for LLM consumption
+- **Simplicity Over Abstraction** - Avoid unnecessary helper functions and layers
+- **Type Safety & Validation** - Use typed handlers with input structs
+- **Resource Efficiency** - Singleton pattern for client connections
+- **Error Transparency** - Include endpoint context in error messages
+
+Before implementing new features or making changes, consult the constitution for detailed requirements and patterns.

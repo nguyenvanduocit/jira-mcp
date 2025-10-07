@@ -2,12 +2,51 @@
 
 Control Jira from Cursor/Claude. Create/update issues, manage sprints and versions, add comments/worklogs, and run transitions from your editor.
 
-### Capabilities
-- **Issues**: get/create/update, child issues, JQL search, transitions
-- **Sprints**: list sprints, get active sprint, move up to 50 issues
-- **Collaboration**: comments, worklogs, related issues (links)
-- **Versions**: list and inspect released/unreleased versions
-- **Output**: compact text formatted for AI tools
+## Installation
+
+Copy this prompt to your AI assistant:
+
+```
+Install the Jira MCP server (https://github.com/nguyenvanduocit/jira-mcp) for my Claude Desktop or Cursor IDE. Read the MCP documentation carefully and guide me through the installation step by step.
+```
+
+If your AI assistant cannot help with this installation, it indicates either a misconfiguration or an ineffective AI tool. A capable AI assistant should be able to guide you through MCP installation.
+
+## License
+MIT — see `LICENSE`.
+
+## FOR AI
+
+> THIS SECTION IS FOR AI ONLY
+
+When working with this codebase, read these files to understand the project structure:
+
+1. **CLAUDE.md** - Comprehensive project documentation including architecture, development commands, and coding conventions
+2. **main.go** - Entry point that shows how the MCP server is initialized and tools are registered
+3. **services/jira_client.go** - Singleton Jira client initialization and authentication
+4. **tools/** - Individual tool implementations following consistent patterns
+5. **docs/** - Detailed documentation (see structure below)
+
+### Documentation Structure
+
+```
+docs/
+├── README.md              # Documentation overview
+├── QUICK_REFERENCE.md     # Quick reference guide for common patterns
+└── API_REFERENCE.md       # Complete API reference for all tools
+```
+
+Key concepts:
+- This is a Go-based MCP server that connects AI assistants to Jira
+- Each tool follows a registration + handler pattern with typed input validation
+- Tools are organized by category (issues, sprints, comments, worklogs, etc.)
+- All Jira operations use the `github.com/ctreminiom/go-atlassian` client library
+- Development principles documented in `.specify/memory/constitution.md`
+
+Before making changes, review:
+- **CLAUDE.md** for architecture patterns and development commands
+- **.specify/memory/constitution.md** for governance principles
+
 
 ## Quick start
 
@@ -76,9 +115,3 @@ Cursor config (HTTP mode):
 ```json
 { "mcpServers": { "jira": { "url": "http://localhost:3000/mcp" } } }
 ```
-
-## Deeper docs
-- API and architecture: see `docs/` → [Docs index](docs/README.md), [API reference](docs/API_REFERENCE.md)
-
-## License
-MIT — see `LICENSE`.
