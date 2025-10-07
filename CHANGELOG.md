@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.14.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.13.0...v1.14.0) (2025-09-23)
+
+
+### Features
+
+* add jira_ prefix to all tool names for better LLM discoverability ([f44cd03](https://github.com/nguyenvanduocit/jira-mcp/commit/f44cd03a7c467255192f65404cfc15cc53ae0b76))
+
 ## [1.13.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.12.1...v1.13.0) (2025-09-23)
 
 
