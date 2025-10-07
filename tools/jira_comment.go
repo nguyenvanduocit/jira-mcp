@@ -38,10 +38,22 @@ func RegisterJiraCommentTools(s *server.MCPServer) {
 func jiraAddCommentHandler(ctx context.Context, request mcp.CallToolRequest, input AddCommentInput) (*mcp.CallToolResult, error) {
 	client := services.JiraClient()
 
+	// Create proper ADF structure: document → paragraph → text
 	commentPayload := &models.CommentPayloadScheme{
 		Body: &models.CommentNodeScheme{
-			Type: "text",
-			Text: input.Comment,
+			Version: 1,
+			Type:    "doc",
+			Content: []*models.CommentNodeScheme{
+				{
+					Type: "paragraph",
+					Content: []*models.CommentNodeScheme{
+						{
+							Type: "text",
+							Text: input.Comment,
+						},
+					},
+				},
+			},
 		},
 	}
 
