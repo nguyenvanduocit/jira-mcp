@@ -11,6 +11,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
+	"github.com/tidwall/gjson"
 )
 
 // GetDevelopmentInfoInput defines input parameters for jira_get_development_information tool.
@@ -19,6 +20,7 @@ type GetDevelopmentInfoInput struct {
 	IncludeBranches     bool   `json:"include_branches,omitempty"`
 	IncludePullRequests bool   `json:"include_pull_requests,omitempty"`
 	IncludeCommits      bool   `json:"include_commits,omitempty"`
+	IncludeBuilds       bool   `json:"include_builds,omitempty"`
 }
 
 // DevStatusResponse is the top-level response from /rest/dev-status/1.0/issue/detail endpoint.
@@ -32,9 +34,26 @@ type DevStatusResponse struct {
 // Multiple Detail entries may exist if the Jira instance has multiple VCS integrations
 // (e.g., GitHub and Bitbucket).
 type DevStatusDetail struct {
-	Branches     []Branch      `json:"branches"`
-	PullRequests []PullRequest `json:"pullRequests"`
-	Repositories []Repository  `json:"repositories"`
+	Branches        []Branch          `json:"branches,omitempty"`
+	PullRequests    []PullRequest     `json:"pullRequests,omitempty"`
+	Repositories    []Repository      `json:"repositories,omitempty"`
+	Builds          []Build           `json:"builds,omitempty"`
+	JswddBuildsData []JswddBuildsData `json:"jswddBuildsData,omitempty"`
+}
+
+// JswddBuildsData contains build information from cloud providers.
+type JswddBuildsData struct {
+	Builds    []Build    `json:"builds,omitempty"`
+	Providers []Provider `json:"providers,omitempty"`
+}
+
+// Provider represents a CI/CD provider.
+type Provider struct {
+	ID               string `json:"id"`
+	Name             string `json:"name"`
+	HomeURL          string `json:"homeUrl,omitempty"`
+	LogoURL          string `json:"logoUrl,omitempty"`
+	DocumentationURL string `json:"documentationUrl,omitempty"`
 }
 
 // Branch represents a Git branch linked to the Jira issue.
@@ -122,10 +141,64 @@ type BranchRef struct {
 	URL    string `json:"url,omitempty"`
 }
 
+// Build represents a CI/CD build linked to the Jira issue.
+// Status values include: successful, failed, in_progress, cancelled, unknown.
+type Build struct {
+	ID            string            `json:"id"`
+	Name          string            `json:"name,omitempty"`
+	DisplayName   string            `json:"displayName,omitempty"`
+	Description   string            `json:"description,omitempty"`
+	URL           string            `json:"url"`
+	State         string            `json:"state"`
+	CreatedAt     string            `json:"createdAt,omitempty"`
+	LastUpdated   string            `json:"lastUpdated"`
+	BuildNumber   interface{}       `json:"buildNumber,omitempty"` // Can be string or int
+	TestInfo      *BuildTestSummary `json:"testInfo,omitempty"`
+	TestSummary   *BuildTestSummary `json:"testSummary,omitempty"`
+	References    []BuildReference  `json:"references,omitempty"`
+	PipelineID    string            `json:"pipelineId,omitempty"`
+	PipelineName  string            `json:"pipelineName,omitempty"`
+	ProviderID    string            `json:"providerId,omitempty"`
+	ProviderType  string            `json:"providerType,omitempty"`
+	ProviderAri   string            `json:"providerAri,omitempty"`
+	RepositoryID  string            `json:"repositoryId,omitempty"`
+	RepositoryName string           `json:"repositoryName,omitempty"`
+	RepositoryURL string            `json:"repositoryUrl,omitempty"`
+}
+
+// BuildTestSummary contains test execution statistics for a build.
+type BuildTestSummary struct {
+	TotalNumber   int `json:"totalNumber"`
+	NumberPassed  int `json:"numberPassed,omitempty"`
+	SuccessNumber int `json:"successNumber,omitempty"`
+	NumberFailed  int `json:"numberFailed,omitempty"`
+	FailedNumber  int `json:"failedNumber,omitempty"`
+	SkippedNumber int `json:"skippedNumber,omitempty"`
+}
+
+// BuildReference represents a VCS reference (commit/branch) associated with a build.
+type BuildReference struct {
+	Commit CommitRef `json:"commit,omitempty"`
+	Ref    RefInfo   `json:"ref,omitempty"`
+}
+
+// CommitRef represents a commit reference in a build.
+type CommitRef struct {
+	ID            string `json:"id"`
+	DisplayID     string `json:"displayId"`
+	RepositoryURI string `json:"repositoryUri,omitempty"`
+}
+
+// RefInfo represents a branch/tag reference in a build.
+type RefInfo struct {
+	Name string `json:"name"`
+	URI  string `json:"uri,omitempty"`
+}
+
 // RegisterJiraDevelopmentTool registers the jira_get_development_information tool
 func RegisterJiraDevelopmentTool(s *server.MCPServer) {
 	tool := mcp.NewTool("jira_get_development_information",
-		mcp.WithDescription("Retrieve branches, pull requests, and commits linked to a Jira issue via development tool integrations (GitHub, GitLab, Bitbucket). Returns human-readable formatted text showing all development work associated with the issue."),
+		mcp.WithDescription("Retrieve branches, pull requests, commits, and builds linked to a Jira issue via development tool integrations (GitHub, GitLab, Bitbucket, CI/CD providers). Returns human-readable formatted text showing all development work associated with the issue."),
 		mcp.WithString("issue_key",
 			mcp.Required(),
 			mcp.Description("The Jira issue key (e.g., PROJ-123)")),
@@ -135,6 +208,8 @@ func RegisterJiraDevelopmentTool(s *server.MCPServer) {
 			mcp.Description("Include pull requests in the response (default: true)")),
 		mcp.WithBoolean("include_commits",
 			mcp.Description("Include commits in the response (default: true)")),
+		mcp.WithBoolean("include_builds",
+			mcp.Description("Include CI/CD builds in the response (default: true)")),
 	)
 	s.AddTool(tool, mcp.NewTypedToolHandler(jiraGetDevelopmentInfoHandler))
 }
@@ -154,12 +229,14 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 	includeBranches := input.IncludeBranches
 	includePRs := input.IncludePullRequests
 	includeCommits := input.IncludeCommits
+	includeBuilds := input.IncludeBuilds
 
 	// If all are false (omitted), default to true
-	if !includeBranches && !includePRs && !includeCommits {
+	if !includeBranches && !includePRs && !includeCommits && !includeBuilds {
 		includeBranches = true
 		includePRs = true
 		includeCommits = true
+		includeBuilds = true
 	}
 
 	// Step 1: Convert issue key to numeric ID
@@ -182,8 +259,8 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		return nil, fmt.Errorf("failed to create summary request: %w", err)
 	}
 
-	var summaryResp map[string]interface{}
-	summaryCallResp, err := client.Call(summaryReq, &summaryResp)
+	var summaryRespBytes json.RawMessage
+	summaryCallResp, err := client.Call(summaryReq, &summaryRespBytes)
 	if err != nil {
 		if summaryCallResp != nil && summaryCallResp.Code == 401 {
 			return nil, fmt.Errorf("authentication failed")
@@ -202,53 +279,52 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		return nil, fmt.Errorf("failed to retrieve development summary: %w", err)
 	}
 
-	// Extract application types from summary
-	applicationTypes := make(map[string]bool)
-	if summary, ok := summaryResp["summary"].(map[string]interface{}); ok {
-		for _, dataType := range []string{"repository", "branch", "pullrequest"} {
-			if dataTypeInfo, ok := summary[dataType].(map[string]interface{}); ok {
-				if byInstance, ok := dataTypeInfo["byInstanceType"].(map[string]interface{}); ok {
-					for appType := range byInstance {
-						applicationTypes[appType] = true
-					}
-				}
-			}
-		}
+	// Parse summary with gjson and extract (appType, dataType) pairs
+	parsed := gjson.ParseBytes(summaryRespBytes)
+
+	type endpointPair struct {
+		appType  string
+		dataType string
+	}
+	var endpointsToFetch []endpointPair
+
+	for _, dataType := range []string{"repository", "branch", "pullrequest", "build"} {
+		parsed.Get(fmt.Sprintf("summary.%s.byInstanceType", dataType)).ForEach(func(appType, value gjson.Result) bool {
+			endpointsToFetch = append(endpointsToFetch, endpointPair{appType.String(), dataType})
+			return true // continue iteration
+		})
 	}
 
-	if len(applicationTypes) == 0 {
+	if len(endpointsToFetch) == 0 {
 		emptyResp := map[string]interface{}{
 			"issueKey":     input.IssueKey,
 			"message":      "No development integrations found",
 			"branches":     []Branch{},
 			"pullRequests": []PullRequest{},
 			"repositories": []Repository{},
+			"builds":       []Build{},
 		}
 		jsonData, _ := json.Marshal(emptyResp)
 		return mcp.NewToolResultText(string(jsonData)), nil
 	}
 
-	// Step 3: Call detail endpoint for each application type and data type
-	// Per curl testing: dataType=repository returns commits, dataType=branch returns branches+PRs
+	// Step 3: Call detail endpoint for each (appType, dataType) pair from summary
 	var allDetails []DevStatusDetail
-	for appType := range applicationTypes {
-		// Fetch repository data (contains commits)
-		for _, dataType := range []string{"repository", "branch"} {
-			endpoint := fmt.Sprintf("/rest/dev-status/latest/issue/detail?issueId=%s&applicationType=%s&dataType=%s", issue.ID, appType, dataType)
-			req, err := client.NewRequest(ctx, "GET", endpoint, "", nil)
-			if err != nil {
-				continue
-			}
+	for _, ep := range endpointsToFetch {
+		endpoint := fmt.Sprintf("/rest/dev-status/latest/issue/detail?issueId=%s&applicationType=%s&dataType=%s", issue.ID, ep.appType, ep.dataType)
+		req, err := client.NewRequest(ctx, "GET", endpoint, "", nil)
+		if err != nil {
+			continue
+		}
 
-			var devStatusResponse DevStatusResponse
-			_, err = client.Call(req, &devStatusResponse)
-			if err != nil {
-				continue
-			}
+		var devStatusResponse DevStatusResponse
+		_, err = client.Call(req, &devStatusResponse)
+		if err != nil {
+			continue
+		}
 
-			if len(devStatusResponse.Errors) == 0 {
-				allDetails = append(allDetails, devStatusResponse.Detail...)
-			}
+		if len(devStatusResponse.Errors) == 0 {
+			allDetails = append(allDetails, devStatusResponse.Detail...)
 		}
 	}
 
@@ -257,17 +333,24 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 	var allBranches []Branch
 	var allPullRequests []PullRequest
 	var allRepositories []Repository
+	var allBuilds []Build
 
 	for _, detail := range allDetails {
 		allBranches = append(allBranches, detail.Branches...)
 		allPullRequests = append(allPullRequests, detail.PullRequests...)
 		allRepositories = append(allRepositories, detail.Repositories...)
+		allBuilds = append(allBuilds, detail.Builds...)
+		// Extract builds from jswddBuildsData (cloud-providers)
+		for _, jswdd := range detail.JswddBuildsData {
+			allBuilds = append(allBuilds, jswdd.Builds...)
+		}
 	}
 
 	// Apply filters and ensure empty arrays instead of nil
 	filteredBranches := []Branch{}
 	filteredPullRequests := []PullRequest{}
 	filteredRepositories := []Repository{}
+	filteredBuilds := []Build{}
 
 	if includeBranches && len(allBranches) > 0 {
 		filteredBranches = allBranches
@@ -278,6 +361,9 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 	if includeCommits && len(allRepositories) > 0 {
 		filteredRepositories = allRepositories
 	}
+	if includeBuilds && len(allBuilds) > 0 {
+		filteredBuilds = allBuilds
+	}
 
 	// Build JSON response
 	result := map[string]interface{}{
@@ -285,6 +371,7 @@ func jiraGetDevelopmentInfoHandler(ctx context.Context, request mcp.CallToolRequ
 		"branches":     filteredBranches,
 		"pullRequests": filteredPullRequests,
 		"repositories": filteredRepositories,
+		"builds":       filteredBuilds,
 	}
 
 	jsonData, err := json.Marshal(result)

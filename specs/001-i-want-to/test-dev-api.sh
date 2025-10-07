@@ -65,3 +65,75 @@ echo "========================================="
 curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
   -H "Accept: application/json" \
   "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&applicationType=GitLab&dataType=pullrequest" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 6: Getting development details (commit) - GitLab"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&applicationType=GitLab&dataType=commit" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 7: Getting build information - All types"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&dataType=build" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 8: Getting build information - cloud-providers"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&applicationType=cloud-providers&dataType=build" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 9: Getting deployment information - All types"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&dataType=deployment" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 10: Getting deployment-environment information"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&dataType=deployment-environment" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 11: Getting review information"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&dataType=review" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 12: Getting ALL development details - GitLab"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}&applicationType=GitLab" | jq '.'
+
+echo ""
+echo "========================================="
+echo "Step 13: Getting ALL development details - No filters"
+echo "========================================="
+
+curl -s -u "${JIRA_EMAIL}:${JIRA_TOKEN}" \
+  -H "Accept: application/json" \
+  "${JIRA_HOST}/rest/dev-status/latest/issue/detail?issueId=${ISSUE_ID}" | jq '.'
