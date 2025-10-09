@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.16.0...v1.17.0) (2025-10-09)
+
+
+### Features
+
+* add ARM64 support for Docker images ([d535e52](https://github.com/nguyenvanduocit/jira-mcp/commit/d535e52a3c966ca2af3f67d386282ed640e7b387))
+
 ## [1.16.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.15.0...v1.16.0) (2025-10-07)
 
 
