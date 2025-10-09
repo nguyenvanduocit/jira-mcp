@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.0...v1.17.1) (2025-10-09)
+
+
+### Bug Fixes
+
+* disable provenance and SBOM to prevent unknown/unknown platform entry ([2acf42f](https://github.com/nguyenvanduocit/jira-mcp/commit/2acf42f1c1fbb43f078c2c4828bf0fd23493c026))
+
 ## [1.17.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.16.0...v1.17.0) (2025-10-09)
 
 
