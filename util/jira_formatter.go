@@ -7,6 +7,185 @@ import (
 	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 )
 
+// RenderADF converts an Atlassian Document Format (ADF) structure to markdown text
+func RenderADF(node *models.CommentNodeScheme) string {
+	if node == nil {
+		return ""
+	}
+
+	var sb strings.Builder
+	renderADFNode(node, &sb, 0, "")
+	return strings.TrimSpace(sb.String())
+}
+
+// renderADFNode recursively renders an ADF node to a string builder
+func renderADFNode(node *models.CommentNodeScheme, sb *strings.Builder, depth int, listPrefix string) {
+	if node == nil {
+		return
+	}
+
+	switch node.Type {
+	case "doc":
+		// Document root - just render children
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+
+	case "paragraph":
+		// Paragraph - render children and add newline
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+		sb.WriteString("\n\n")
+
+	case "text":
+		// Text node - apply marks (bold, italic, etc.) and write text
+		text := node.Text
+		if len(node.Marks) > 0 {
+			for _, mark := range node.Marks {
+				switch mark.Type {
+				case "strong":
+					text = "**" + text + "**"
+				case "em":
+					text = "*" + text + "*"
+				case "code":
+					text = "`" + text + "`"
+				case "strike":
+					text = "~~" + text + "~~"
+				case "underline":
+					text = "__" + text + "__"
+				}
+			}
+		}
+		sb.WriteString(text)
+
+	case "hardBreak":
+		sb.WriteString("\n")
+
+	case "heading":
+		// Heading with level
+		level := 1
+		if attrs := node.Attrs; attrs != nil {
+			if lvl, ok := attrs["level"].(float64); ok {
+				level = int(lvl)
+			}
+		}
+		sb.WriteString(strings.Repeat("#", level) + " ")
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+		sb.WriteString("\n\n")
+
+	case "bulletList":
+		// Bullet list - render children with bullet points
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, "- ")
+		}
+
+	case "orderedList":
+		// Ordered list - render children with numbers
+		for i, child := range node.Content {
+			prefix := fmt.Sprintf("%d. ", i+1)
+			renderADFNode(child, sb, depth, prefix)
+		}
+
+	case "listItem":
+		// List item - add prefix and render children
+		if listPrefix != "" {
+			sb.WriteString(strings.Repeat("  ", depth))
+			sb.WriteString(listPrefix)
+		}
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth+1, "")
+		}
+
+	case "codeBlock":
+		// Code block
+		language := ""
+		if attrs := node.Attrs; attrs != nil {
+			if lang, ok := attrs["language"].(string); ok {
+				language = lang
+			}
+		}
+		sb.WriteString("```" + language + "\n")
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+		sb.WriteString("```\n\n")
+
+	case "blockquote":
+		// Blockquote - prefix each line with >
+		var innerSb strings.Builder
+		for _, child := range node.Content {
+			renderADFNode(child, &innerSb, depth, listPrefix)
+		}
+		lines := strings.Split(strings.TrimSpace(innerSb.String()), "\n")
+		for _, line := range lines {
+			sb.WriteString("> " + line + "\n")
+		}
+		sb.WriteString("\n")
+
+	case "rule":
+		// Horizontal rule
+		sb.WriteString("---\n\n")
+
+	case "table":
+		// Table - simplified rendering (ADF tables are complex)
+		sb.WriteString("\n[Table Content]\n")
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+		sb.WriteString("\n")
+
+	case "tableRow":
+		sb.WriteString("| ")
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+			sb.WriteString(" | ")
+		}
+		sb.WriteString("\n")
+
+	case "tableHeader", "tableCell":
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+
+	case "media", "mediaSingle", "mediaGroup":
+		// Media nodes - just indicate that media is present
+		sb.WriteString("[Media/Image]")
+
+	case "mention":
+		// User mention
+		if attrs := node.Attrs; attrs != nil {
+			if text, ok := attrs["text"].(string); ok {
+				sb.WriteString("@" + text)
+			}
+		}
+
+	case "emoji":
+		// Emoji
+		if attrs := node.Attrs; attrs != nil {
+			if shortName, ok := attrs["shortName"].(string); ok {
+				sb.WriteString(shortName)
+			}
+		}
+
+	case "inlineCard":
+		// Inline card/link
+		if attrs := node.Attrs; attrs != nil {
+			if url, ok := attrs["url"].(string); ok {
+				sb.WriteString(url)
+			}
+		}
+
+	default:
+		// Unknown node type - try to render children
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+	}
+}
+
 // FormatJiraIssue converts a Jira issue struct to a formatted string representation
 // It handles all available fields from IssueFieldsSchemeV2 and related schemas
 func FormatJiraIssue(issue *models.IssueScheme) string {
@@ -33,7 +212,10 @@ func FormatJiraIssue(issue *models.IssueScheme) string {
 		}
 
 		if fields.Description != nil {
-			sb.WriteString(fmt.Sprintf("Description: %s\n", fields.Description))
+			renderedDescription := RenderADF(fields.Description)
+			if renderedDescription != "" {
+				sb.WriteString(fmt.Sprintf("Description:\n%s\n", renderedDescription))
+			}
 		}
 
 		// Issue Type
