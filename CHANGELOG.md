@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.2](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.1...v1.17.2) (2025-10-21)
+
+
+### Bug Fixes
+
+* render ADF description as markdown instead of raw structs ([3f915c6](https://github.com/nguyenvanduocit/jira-mcp/commit/3f915c6e8d5e35099d6d64bd8b3a44b28e4b298f))
+
 ## [1.17.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.0...v1.17.1) (2025-10-09)
 
 
