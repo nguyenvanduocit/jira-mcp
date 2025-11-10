@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.3](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.2...v1.17.3) (2025-11-10)
+
+
+### Bug Fixes
+
+* correct ADF structure for issue descriptions and add delete tool ([f432b34](https://github.com/nguyenvanduocit/jira-mcp/commit/f432b346b5ee08c08a5fde3d089ef1df56c8e1f1))
+
 ## [1.17.2](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.1...v1.17.2) (2025-10-21)
 
 
