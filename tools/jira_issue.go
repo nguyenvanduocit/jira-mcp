@@ -43,6 +43,10 @@ type ListIssueTypesInput struct {
 	ProjectKey string `json:"project_key" validate:"required"`
 }
 
+type DeleteIssueInput struct {
+	IssueKey string `json:"issue_key" validate:"required"`
+}
+
 func RegisterJiraIssueTool(s *server.MCPServer) {
 	jiraGetIssueTool := mcp.NewTool("jira_get_issue",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira issue including its status, assignee, description, subtasks, and available transitions"),
@@ -83,6 +87,12 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier to list issue types for (e.g., KP, PROJ)")),
 	)
 	s.AddTool(jiraListIssueTypesTool, mcp.NewTypedToolHandler(jiraListIssueTypesHandler))
+
+	jiraDeleteIssueTool := mcp.NewTool("jira_delete_issue",
+		mcp.WithDescription("Delete a Jira issue permanently. This action cannot be undone."),
+		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the issue to delete (e.g., SHTP-6216, PROJ-123)")),
+	)
+	s.AddTool(jiraDeleteIssueTool, mcp.NewTypedToolHandler(jiraDeleteIssueHandler))
 }
 
 func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueInput) (*mcp.CallToolResult, error) {
@@ -122,10 +132,17 @@ func jiraCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest, in
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: input.ProjectKey},
 			Description: &models.CommentNodeScheme{
+				Version: 1,
+				Type:    "doc",
 				Content: []*models.CommentNodeScheme{
 					{
-						Type: "text",
-						Text: input.Description,
+						Type: "paragraph",
+						Content: []*models.CommentNodeScheme{
+							{
+								Type: "text",
+								Text: input.Description,
+							},
+						},
 					},
 				},
 			},
@@ -168,8 +185,19 @@ func jiraCreateChildIssueHandler(ctx context.Context, request mcp.CallToolReques
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: parentIssue.Fields.Project.Key},
 			Description: &models.CommentNodeScheme{
-				Type: "text",
-				Text: input.Description,
+				Version: 1,
+				Type:    "doc",
+				Content: []*models.CommentNodeScheme{
+					{
+						Type: "paragraph",
+						Content: []*models.CommentNodeScheme{
+							{
+								Type: "text",
+								Text: input.Description,
+							},
+						},
+					},
+				},
 			},
 			IssueType:   &models.IssueTypeScheme{Name: issueType},
 			Parent:      &models.ParentScheme{Key: input.ParentIssueKey},
@@ -206,8 +234,19 @@ func jiraUpdateIssueHandler(ctx context.Context, request mcp.CallToolRequest, in
 
 	if input.Description != "" {
 		payload.Fields.Description = &models.CommentNodeScheme{
-			Type: "text",
-			Text: input.Description,
+			Version: 1,
+			Type:    "doc",
+			Content: []*models.CommentNodeScheme{
+				{
+					Type: "paragraph",
+					Content: []*models.CommentNodeScheme{
+						{
+							Type: "text",
+							Text: input.Description,
+						},
+					},
+				},
+			},
 		}
 	}
 
@@ -260,4 +299,18 @@ func jiraListIssueTypesHandler(ctx context.Context, request mcp.CallToolRequest,
 	}
 
 	return mcp.NewToolResultText(result.String()), nil
+}
+
+func jiraDeleteIssueHandler(ctx context.Context, request mcp.CallToolRequest, input DeleteIssueInput) (*mcp.CallToolResult, error) {
+	client := services.JiraClient()
+
+	response, err := client.Issue.Delete(ctx, input.IssueKey, false)
+	if err != nil {
+		if response != nil {
+			return nil, fmt.Errorf("failed to delete issue: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
+		}
+		return nil, fmt.Errorf("failed to delete issue: %v", err)
+	}
+
+	return mcp.NewToolResultText(fmt.Sprintf("Issue %s deleted successfully!", input.IssueKey)), nil
 }
