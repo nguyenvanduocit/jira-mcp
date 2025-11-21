@@ -8,6 +8,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
+	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -97,12 +98,15 @@ func jiraGetCommentsHandler(ctx context.Context, request mcp.CallToolRequest, in
 			authorName = comment.Author.DisplayName
 		}
 
-		result += fmt.Sprintf("ID: %s\nAuthor: %s\nCreated: %s\nUpdated: %s\nBody: %s\n\n",
+		// Render ADF body to readable text
+		bodyText := util.RenderADF(comment.Body)
+
+		result += fmt.Sprintf("ID: %s\nAuthor: %s\nCreated: %s\nUpdated: %s\nBody:\n%s\n\n",
 			comment.ID,
 			authorName,
 			comment.Created,
 			comment.Updated,
-			comment.Body)
+			bodyText)
 	}
 
 	return mcp.NewToolResultText(result), nil
