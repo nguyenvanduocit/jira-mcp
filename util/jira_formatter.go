@@ -150,9 +150,39 @@ func renderADFNode(node *models.CommentNodeScheme, sb *strings.Builder, depth in
 			renderADFNode(child, sb, depth, listPrefix)
 		}
 
-	case "media", "mediaSingle", "mediaGroup":
-		// Media nodes - just indicate that media is present
-		sb.WriteString("[Media/Image]")
+	case "mediaSingle", "mediaGroup":
+		for _, child := range node.Content {
+			renderADFNode(child, sb, depth, listPrefix)
+		}
+
+	case "media":
+		attrs := node.Attrs
+		if attrs == nil {
+			sb.WriteString("[Media/Image]")
+			break
+		}
+		mediaID, _ := attrs["id"].(string)
+		mediaType, _ := attrs["type"].(string)
+		alt, _ := attrs["alt"].(string)
+
+		if alt != "" {
+			sb.WriteString(fmt.Sprintf("[Media: %s", alt))
+		} else if mediaType != "" {
+			sb.WriteString(fmt.Sprintf("[Media: %s", mediaType))
+		} else {
+			sb.WriteString("[Media")
+		}
+
+		if w, ok := attrs["width"].(float64); ok {
+			if h, ok := attrs["height"].(float64); ok {
+				sb.WriteString(fmt.Sprintf(" (%dx%d)", int(w), int(h)))
+			}
+		}
+
+		if mediaID != "" {
+			sb.WriteString(fmt.Sprintf(" | id=%s", mediaID))
+		}
+		sb.WriteString("]")
 
 	case "mention":
 		// User mention
@@ -413,6 +443,15 @@ func FormatJiraIssue(issue *models.IssueScheme) string {
 		// Votes
 		if fields.Votes != nil {
 			sb.WriteString(fmt.Sprintf("Votes: %d\n", fields.Votes.Votes))
+		}
+
+		// Attachments
+		if len(fields.Attachment) > 0 {
+			sb.WriteString("Attachments:\n")
+			for _, att := range fields.Attachment {
+				sb.WriteString(fmt.Sprintf("- %s (ID: %s, Type: %s, Size: %d bytes)\n",
+					att.Title, att.ID, att.MediaType, att.FileSize))
+			}
 		}
 
 		// Comments (summary only to avoid too much text)

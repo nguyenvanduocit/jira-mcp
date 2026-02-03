@@ -94,6 +94,7 @@ func main() {
 	tools.RegisterJiraRelationshipTool(mcpServer)
 	tools.RegisterJiraVersionTool(mcpServer)
 	tools.RegisterJiraDevelopmentTool(mcpServer)
+	tools.RegisterJiraAttachmentTool(mcpServer)
 
 	// Register all Jira prompts
 	prompts.RegisterJiraPrompts(mcpServer)
