@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.17.4](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.3...v1.17.4) (2026-02-03)
+
+
+### Bug Fixes
+
+* render ADF comment body as readable text in jira_get_comments tool ([79fc6cd](https://github.com/nguyenvanduocit/jira-mcp/commit/79fc6cd05801759376f0b14ac99c12ad6bb19e2d))
+* render ADF comment body as readable text in jira_get_comments tool ([5125236](https://github.com/nguyenvanduocit/jira-mcp/commit/512523641e8ea55ae9621d2d939fdf0ac9460bff))
+
 ## [1.17.3](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.2...v1.17.3) (2025-11-10)
 
 
