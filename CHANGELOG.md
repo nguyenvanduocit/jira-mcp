@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.2...v1.0.3) (2026-03-13)
+
+
+### Bug Fixes
+
+* add explicit archive IDs for homebrew brew formula ([81e502a](https://github.com/nguyenvanduocit/jira-mcp/commit/81e502a6cea0f51626f60da5f9cf4277267dfc37))
+
 ## [1.0.2](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.1...v1.0.2) (2026-03-13)
 
 
