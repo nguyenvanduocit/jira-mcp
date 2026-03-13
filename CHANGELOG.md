@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.0...v1.0.1) (2026-03-13)
+
+
+### Bug Fixes
+
+* use merge instead of squash to preserve commit SHAs for release-please ([adddad6](https://github.com/nguyenvanduocit/jira-mcp/commit/adddad621feda67eb1a0e8ef0ef7bbe1c6adc55e))
+
 ## 1.0.0 (2026-03-13)
 
 
