@@ -32,7 +32,7 @@ jobs:
         if: ${{ steps.release.outputs.pr }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --squash "${{ fromJson(steps.release.outputs.pr).number }}"
+        run: gh pr merge --squash "${{ fromJson(steps.release.outputs.pr).number }}" --repo ${{ github.repository }}
 
   goreleaser:
     needs: release-please
