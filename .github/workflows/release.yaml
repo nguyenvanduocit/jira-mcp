@@ -24,6 +24,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: go
 
+      - name: Auto-merge release PR
+        if: ${{ steps.release.outputs.pr }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --squash "${{ fromJson(steps.release.outputs.pr).number }}"
+
   goreleaser:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
@@ -43,6 +49,7 @@ jobs:
           args: release --clean
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_TAP_GITHUB_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
 
   docker:
     needs: release-please
@@ -51,7 +58,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
