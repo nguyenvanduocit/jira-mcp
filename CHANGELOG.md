@@ -1,5 +1,51 @@
 # Changelog
 
+## 1.0.0 (2026-03-13)
+
+
+### Features
+
+* add ARM64 support for Docker images ([a3cdb5e](https://github.com/nguyenvanduocit/jira-mcp/commit/a3cdb5ef5dda5d519bd88266dce8a251bb6a8380))
+* add attachment support with download tool and ADF media rendering ([2086709](https://github.com/nguyenvanduocit/jira-mcp/commit/2086709249b4222282366769ae90ae0b73b8be4b)), closes [#45](https://github.com/nguyenvanduocit/jira-mcp/issues/45)
+* add build information support and prompts functionality ([3e624dc](https://github.com/nguyenvanduocit/jira-mcp/commit/3e624dcf485b08fcd230d4f8c31a28e9a2068df2))
+* add CLI package and update README with CLI usage ([83420c1](https://github.com/nguyenvanduocit/jira-mcp/commit/83420c193d9b598a02d354346892511eb72006d0))
+* add development information tool for Jira issues ([05e9734](https://github.com/nguyenvanduocit/jira-mcp/commit/05e97349065ee0ec6a5302e30a2d23fb565f84bd))
+* add get_active_sprint tool ([6b4faba](https://github.com/nguyenvanduocit/jira-mcp/commit/6b4fabaf1ddeac5eaedfc13821975008d5a5208e))
+* add gitleaks workflow for secret scanning ([9bb46a0](https://github.com/nguyenvanduocit/jira-mcp/commit/9bb46a0f63793934470a1701a42d2413f29898f8))
+* add homebrew installation instructions ([bd44986](https://github.com/nguyenvanduocit/jira-mcp/commit/bd44986528b12cadccc1ca0901210f540077198e))
+* add jira_ prefix to all tool names for better LLM discoverability ([0cb6ef7](https://github.com/nguyenvanduocit/jira-mcp/commit/0cb6ef7df7419c7e33532c566dd4c4d61934039a))
+* bump version ([4066906](https://github.com/nguyenvanduocit/jira-mcp/commit/40669060ad88876cc2cb2c1af4b0bef1f88c0239))
+* **docker:** add Docker support with build and run instructions ([dd3d2bf](https://github.com/nguyenvanduocit/jira-mcp/commit/dd3d2bf055a144ff6c165e9a31acb7e1c71b8b32))
+* **docker:** add Docker support with build and run instructions ([a71f5ba](https://github.com/nguyenvanduocit/jira-mcp/commit/a71f5ba059f15e4c53b857e1d2ce1ddbd44a0723))
+* **docker:** add GitHub Container Registry support ([1708e4e](https://github.com/nguyenvanduocit/jira-mcp/commit/1708e4eea933567a34de2079a45f97e49817f981))
+* **docs:** rewrite README with clear USP and 2‑minute quick start ([4f4f085](https://github.com/nguyenvanduocit/jira-mcp/commit/4f4f085a7ac3e7c258081be631c3ef2c3b8e2dc8))
+* init ([6e960c0](https://github.com/nguyenvanduocit/jira-mcp/commit/6e960c048f69fe61baee42c3061aef0a44602be3))
+* **jira:** add issue history and relationship tools ([acb7e3a](https://github.com/nguyenvanduocit/jira-mcp/commit/acb7e3a4cf2015a07d5b02286d51437b8bf664f5))
+* **jira:** add worklog functionality ([943e76b](https://github.com/nguyenvanduocit/jira-mcp/commit/943e76b204da601eec3d6ab00a4af62a62a7dfee))
+* **jira:** enhance issue retrieval with changelog and story point estimate ([62d04fa](https://github.com/nguyenvanduocit/jira-mcp/commit/62d04fab2129076011030df3c2047219bf327044))
+* **sprint:** add get_active_sprint tool ([62eb381](https://github.com/nguyenvanduocit/jira-mcp/commit/62eb381676f61951ae9076205259ce81abb931ad))
+* **sprint:** add get_sprint tool to retrieve details of a specific sprint ([8f72256](https://github.com/nguyenvanduocit/jira-mcp/commit/8f722564fc3021a59359fda0c310f942f1f7c0a8))
+* **sprint:** enhance list_sprints and get_active_sprint tools with project_key support ([5b595e0](https://github.com/nguyenvanduocit/jira-mcp/commit/5b595e06713fbaee2e713b391f1117fca556f061))
+* support streamable http ([ee6c103](https://github.com/nguyenvanduocit/jira-mcp/commit/ee6c1032d94e67957dc44b92d746696b37d3c353))
+* **tools:** enhance issue tools with flexible field selection ([0964458](https://github.com/nguyenvanduocit/jira-mcp/commit/096445875f177b6b09dd7d98263a377a1e0e6544))
+* **tools:** simplify tool naming and add issue relationship features ([a3f4347](https://github.com/nguyenvanduocit/jira-mcp/commit/a3f43478e85d8ccd7dcb9c7c0aa36fdefbde631a))
+* update foỏmat of sprint ([d364ded](https://github.com/nguyenvanduocit/jira-mcp/commit/d364ded79e6ec8b63385c61a92e6058bee82f960))
+* upgrade to Jira API v3 ([dbd0678](https://github.com/nguyenvanduocit/jira-mcp/commit/dbd067899e4ae6051643ef311e49344e923f3751))
+
+
+### Bug Fixes
+
+* add --repo flag to gh pr merge to fix auto-merge ([706dce8](https://github.com/nguyenvanduocit/jira-mcp/commit/706dce8eb55a49c2ffe405744df8db390cc3aeab))
+* add concurrency control to prevent release race conditions ([960f138](https://github.com/nguyenvanduocit/jira-mcp/commit/960f1383f1b23f02e0235486b9dd95dd421df7a8))
+* **api:** update Jira comment API implementation ([e3aa7c1](https://github.com/nguyenvanduocit/jira-mcp/commit/e3aa7c1d295a579b9fcfb56767bd181160b7e035))
+* correct ADF structure for issue descriptions and add delete tool ([449a6b2](https://github.com/nguyenvanduocit/jira-mcp/commit/449a6b250bf24bc83deaa3ad1e79380271dd3246))
+* disable provenance and SBOM to prevent unknown/unknown platform entry ([618495b](https://github.com/nguyenvanduocit/jira-mcp/commit/618495b7d15db303b18464ac25ab4449ae0a778f))
+* migrate JQL search to new API endpoint ([a444486](https://github.com/nguyenvanduocit/jira-mcp/commit/a44448623f4aa0c22ec85b2a998e6d2ec0f44e8e))
+* render ADF comment body as readable text in jira_get_comments tool ([8f27f27](https://github.com/nguyenvanduocit/jira-mcp/commit/8f27f27726f7133e30727eda77414b4971a4565b))
+* render ADF comment body as readable text in jira_get_comments tool ([ca373c1](https://github.com/nguyenvanduocit/jira-mcp/commit/ca373c100cb09086859f61e9a37ea87b050a3b8f))
+* render ADF description as markdown instead of raw structs ([d97d343](https://github.com/nguyenvanduocit/jira-mcp/commit/d97d343a7df8393c7992debf6852657549c48030))
+* retrieve all issue comments ([ebc958d](https://github.com/nguyenvanduocit/jira-mcp/commit/ebc958dac00f3924e8f3710edad94d5e80f03ec6))
+
 ## [1.17.4](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.17.3...v1.17.4) (2026-02-03)
 
 
