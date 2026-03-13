@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.3...v1.1.0) (2026-03-13)
+
+
+### Features
+
+* add security leak scanning with gitleaks including git history ([f999dcc](https://github.com/nguyenvanduocit/jira-mcp/commit/f999dcc81debb6404990778efcf8a0423699b268))
+
 ## [1.0.3](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.2...v1.0.3) (2026-03-13)
 
 
