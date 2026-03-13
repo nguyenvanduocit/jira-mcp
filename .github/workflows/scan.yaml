@@ -2,9 +2,13 @@ name: Security and Licence Scan
 
 on:
   pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  test:
+  trufflehog:
+    name: TruffleHog Secret Scan
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
