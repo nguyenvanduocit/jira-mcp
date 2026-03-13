@@ -4,7 +4,7 @@ build:
 
 # Build the CLI binary
 build-cli:
-    go build -o bin/jira-cli ./cmd/cli/
+    go build -o bin/jira-cli ./cmd/jira-cli/
 
 # Install the MCP server
 install:
@@ -12,7 +12,7 @@ install:
 
 # Install the CLI binary
 install-cli:
-    go install ./cmd/cli/
+    go install ./cmd/jira-cli/
 
 # Run tests
 test:

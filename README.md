@@ -70,7 +70,7 @@ In addition to the MCP server, `jira-mcp` ships a standalone CLI binary (`jira-c
 ```bash
 just install-cli
 # or
-go install github.com/nguyenvanduocit/jira-mcp/cmd/cli@latest
+go install github.com/nguyenvanduocit/jira-mcp/cmd/jira-cli@latest
 ```
 
 ### Quick Start
