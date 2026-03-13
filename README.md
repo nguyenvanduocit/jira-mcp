@@ -220,3 +220,10 @@ Cursor config (HTTP mode):
 ```json
 { "mcpServers": { "jira": { "url": "http://localhost:3000/mcp" } } }
 ```
+## Installation
+
+### Homebrew (macOS/Linux)
+
+```bash
+brew install nguyenvanduocit/tap/jira-mcp
+```
