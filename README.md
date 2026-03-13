@@ -61,6 +61,71 @@ Install the Jira MCP server (https://github.com/nguyenvanduocit/jira-mcp) for my
 
 If your AI assistant cannot help with this installation, it indicates either a misconfiguration or an ineffective AI tool. A capable AI assistant should be able to guide you through MCP installation.
 
+## CLI Usage
+
+In addition to the MCP server, `jira-mcp` ships a standalone CLI binary (`jira-cli`) for direct terminal use — no MCP client needed.
+
+### Installation
+
+```bash
+just install-cli
+# or
+go install github.com/nguyenvanduocit/jira-mcp/cmd/cli@latest
+```
+
+### Quick Start
+
+```bash
+export ATLASSIAN_HOST=your-instance.atlassian.net
+export ATLASSIAN_EMAIL=you@example.com
+export ATLASSIAN_TOKEN=your-api-token
+# or
+jira-cli --env .env <command> [flags]
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `get-issue` | Get issue details |
+| `search-issues` | Search issues with JQL |
+| `create-issue` | Create a new issue |
+| `update-issue` | Update an existing issue |
+| `add-comment` | Add a comment to an issue |
+| `list-comments` | List comments on an issue |
+| `get-transitions` | Get available status transitions |
+| `transition-issue` | Transition issue to new status |
+| `list-sprints` | List sprints for a board |
+| `get-worklogs` | Get worklogs for an issue |
+| `add-worklog` | Log work on an issue |
+| `get-history` | Get issue change history |
+
+### Examples
+
+```bash
+# Get an issue
+jira-cli get-issue --issue-key PROJ-123
+
+# Search with JQL
+jira-cli search-issues --jql "project = PROJ AND status = 'In Progress'" --max-results 20
+
+# Create an issue
+jira-cli create-issue --project PROJ --summary "Fix login bug" --type Bug
+
+# Transition issue
+jira-cli get-transitions --issue-key PROJ-123
+jira-cli transition-issue --issue-key PROJ-123 --transition-id 31
+
+# JSON output
+jira-cli search-issues --jql "assignee = currentUser()" --output json | jq '.[].key'
+```
+
+### Flags
+
+Every command accepts:
+- `--env string` — Path to `.env` file
+- `--output string` — Output format: `text` (default) or `json`
+
 ## License
 MIT — see `LICENSE`.
 
