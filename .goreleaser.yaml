@@ -36,7 +36,21 @@ builds:
       - -s -w -X main.version={{.Version}}
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}"
+  - id: jira-mcp
+    ids:
+      - jira-mcp
+    name_template: "jira-mcp_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+  - id: jira-cli
+    ids:
+      - jira-cli
+    name_template: "jira-cli_{{ .Os }}_{{ .Arch }}"
     formats:
       - tar.gz
     format_overrides:
