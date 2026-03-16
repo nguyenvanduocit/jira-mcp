@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -217,7 +220,6 @@ func runSearchIssues(args []string) {
 	}
 
 	ctx := context.Background()
-	client := services.JiraClient()
 
 	var fieldSlice []string
 	if *fields != "" {
@@ -228,11 +230,8 @@ func runSearchIssues(args []string) {
 		expandSlice = strings.Split(strings.ReplaceAll(*expand, " ", ""), ",")
 	}
 
-	issues, response, err := client.Issue.Search.Post(ctx, *jql, fieldSlice, expandSlice, 0, *maxResults, "")
+	issues, err := searchIssuesJQL(ctx, *jql, fieldSlice, expandSlice, 0, *maxResults)
 	if err != nil {
-		if response != nil {
-			fatal("failed to search issues: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
-		}
 		fatal("failed to search issues: %v", err)
 	}
 
@@ -255,6 +254,52 @@ func runSearchIssues(args []string) {
 		}
 		fmt.Println()
 	}
+}
+
+// searchIssuesJQL uses the new /rest/api/3/search/jql endpoint directly
+func searchIssuesJQL(ctx context.Context, jql string, fields []string, expand []string, startAt, maxResults int) (*models.IssueSearchScheme, error) {
+	host := os.Getenv("ATLASSIAN_HOST")
+	mail := os.Getenv("ATLASSIAN_EMAIL")
+	token := os.Getenv("ATLASSIAN_TOKEN")
+
+	params := url.Values{}
+	params.Set("jql", jql)
+	if len(fields) > 0 {
+		params.Set("fields", strings.Join(fields, ","))
+	}
+	if len(expand) > 0 {
+		params.Set("expand", strings.Join(expand, ","))
+	}
+	if startAt > 0 {
+		params.Set("startAt", strconv.Itoa(startAt))
+	}
+	if maxResults > 0 {
+		params.Set("maxResults", strconv.Itoa(maxResults))
+	}
+
+	endpoint := fmt.Sprintf("%s/rest/api/3/search/jql?%s", host, params.Encode())
+	req, err := http.NewRequestWithContext(ctx, "GET", endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+	req.SetBasicAuth(mail, token)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("API request failed with status %d", resp.StatusCode)
+	}
+
+	var result models.IssueSearchScheme
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+	return &result, nil
 }
 
 // ── create-issue ──────────────────────────────────────────────────────────────
