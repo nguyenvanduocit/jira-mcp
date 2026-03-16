@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.1.0...v1.1.1) (2026-03-16)
+
+
+### Bug Fixes
+
+* **cli:** use new /rest/api/3/search/jql endpoint for search-issues ([d0adf1d](https://github.com/nguyenvanduocit/jira-mcp/commit/d0adf1dfadd525ed8f42afbdb265f66b6ca24505))
+
 ## [1.1.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.0.3...v1.1.0) (2026-03-13)
 
 
