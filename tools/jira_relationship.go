@@ -9,6 +9,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/services"
+	"github.com/nguyenvanduocit/jira-mcp/util"
 )
 
 // Input types for typed tools
@@ -123,10 +124,7 @@ func jiraLinkHandler(ctx context.Context, request mcp.CallToolRequest, input Lin
 	// Add comment if provided
 	if input.Comment != "" {
 		payload.Comment = &models.CommentPayloadScheme{
-			Body: &models.CommentNodeScheme{
-				Type: "text",
-				Text: input.Comment,
-			},
+			Body: util.MarkdownToADF(input.Comment),
 		}
 	}
 

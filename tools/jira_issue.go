@@ -131,21 +131,7 @@ func jiraCreateIssueHandler(ctx context.Context, request mcp.CallToolRequest, in
 		Fields: &models.IssueFieldsScheme{
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: input.ProjectKey},
-			Description: &models.CommentNodeScheme{
-				Version: 1,
-				Type:    "doc",
-				Content: []*models.CommentNodeScheme{
-					{
-						Type: "paragraph",
-						Content: []*models.CommentNodeScheme{
-							{
-								Type: "text",
-								Text: input.Description,
-							},
-						},
-					},
-				},
-			},
+			Description: util.MarkdownToADF(input.Description),
 			IssueType:   &models.IssueTypeScheme{Name: input.IssueType},
 		},
 	}
@@ -184,21 +170,7 @@ func jiraCreateChildIssueHandler(ctx context.Context, request mcp.CallToolReques
 		Fields: &models.IssueFieldsScheme{
 			Summary:     input.Summary,
 			Project:     &models.ProjectScheme{Key: parentIssue.Fields.Project.Key},
-			Description: &models.CommentNodeScheme{
-				Version: 1,
-				Type:    "doc",
-				Content: []*models.CommentNodeScheme{
-					{
-						Type: "paragraph",
-						Content: []*models.CommentNodeScheme{
-							{
-								Type: "text",
-								Text: input.Description,
-							},
-						},
-					},
-				},
-			},
+			Description: util.MarkdownToADF(input.Description),
 			IssueType:   &models.IssueTypeScheme{Name: issueType},
 			Parent:      &models.ParentScheme{Key: input.ParentIssueKey},
 		},
@@ -233,21 +205,7 @@ func jiraUpdateIssueHandler(ctx context.Context, request mcp.CallToolRequest, in
 	}
 
 	if input.Description != "" {
-		payload.Fields.Description = &models.CommentNodeScheme{
-			Version: 1,
-			Type:    "doc",
-			Content: []*models.CommentNodeScheme{
-				{
-					Type: "paragraph",
-					Content: []*models.CommentNodeScheme{
-						{
-							Type: "text",
-							Text: input.Description,
-						},
-					},
-				},
-			},
-		}
+		payload.Fields.Description = util.MarkdownToADF(input.Description)
 	}
 
 	response, err := client.Issue.Update(ctx, input.IssueKey, true, payload, nil, nil)
