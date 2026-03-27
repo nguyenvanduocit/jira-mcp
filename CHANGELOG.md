@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.1.1...v1.2.0) (2026-03-27)
+
+
+### Features
+
+* auto-convert markdown to ADF for comments and descriptions ([336f736](https://github.com/nguyenvanduocit/jira-mcp/commit/336f73658037f4fad0318da904ac6820dee4ee53)), closes [#56](https://github.com/nguyenvanduocit/jira-mcp/issues/56)
+
 ## [1.1.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.1.0...v1.1.1) (2026-03-16)
 
 
