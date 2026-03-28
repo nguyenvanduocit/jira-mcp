@@ -14,6 +14,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/nguyenvanduocit/jira-mcp/services"
+	"github.com/nguyenvanduocit/jira-mcp/util"
 
 	"github.com/ctreminiom/go-atlassian/pkg/infra/models"
 )
@@ -336,18 +337,7 @@ func runCreateIssue(args []string) {
 		},
 	}
 	if *description != "" {
-		payload.Fields.Description = &models.CommentNodeScheme{
-			Version: 1,
-			Type:    "doc",
-			Content: []*models.CommentNodeScheme{
-				{
-					Type: "paragraph",
-					Content: []*models.CommentNodeScheme{
-						{Type: "text", Text: *description},
-					},
-				},
-			},
-		}
+		payload.Fields.Description = util.MarkdownToADF(*description)
 	}
 
 	issue, response, err := client.Issue.Create(ctx, payload, nil)
@@ -405,18 +395,7 @@ func runCreateChildIssue(args []string) {
 		},
 	}
 	if *description != "" {
-		payload.Fields.Description = &models.CommentNodeScheme{
-			Version: 1,
-			Type:    "doc",
-			Content: []*models.CommentNodeScheme{
-				{
-					Type: "paragraph",
-					Content: []*models.CommentNodeScheme{
-						{Type: "text", Text: *description},
-					},
-				},
-			},
-		}
+		payload.Fields.Description = util.MarkdownToADF(*description)
 	}
 
 	issue, response, err := client.Issue.Create(ctx, payload, nil)
@@ -460,18 +439,7 @@ func runUpdateIssue(args []string) {
 		payload.Fields.Summary = *summary
 	}
 	if *description != "" {
-		payload.Fields.Description = &models.CommentNodeScheme{
-			Version: 1,
-			Type:    "doc",
-			Content: []*models.CommentNodeScheme{
-				{
-					Type: "paragraph",
-					Content: []*models.CommentNodeScheme{
-						{Type: "text", Text: *description},
-					},
-				},
-			},
-		}
+		payload.Fields.Description = util.MarkdownToADF(*description)
 	}
 
 	response, err := client.Issue.Update(ctx, *issueKey, true, payload, nil, nil)
@@ -784,18 +752,7 @@ func runAddComment(args []string) {
 	client := services.JiraClient()
 
 	payload := &models.CommentPayloadScheme{
-		Body: &models.CommentNodeScheme{
-			Version: 1,
-			Type:    "doc",
-			Content: []*models.CommentNodeScheme{
-				{
-					Type: "paragraph",
-					Content: []*models.CommentNodeScheme{
-						{Type: "text", Text: *comment},
-					},
-				},
-			},
-		},
+		Body: util.MarkdownToADF(*comment),
 	}
 
 	result, response, err := client.Issue.Comment.Add(ctx, *issueKey, payload, nil)
@@ -900,10 +857,7 @@ func runAddWorklog(args []string) {
 		Started:          startedStr,
 	}
 	if *comment != "" {
-		payload.Comment = &models.CommentNodeScheme{
-			Type: "text",
-			Text: *comment,
-		}
+		payload.Comment = util.MarkdownToADF(*comment)
 	}
 
 	worklog, response, err := client.Issue.Worklog.Add(ctx, *issueKey, payload, options)
@@ -1169,7 +1123,7 @@ func runLinkIssues(args []string) {
 	}
 	if *comment != "" {
 		payload.Comment = &models.CommentPayloadScheme{
-			Body: &models.CommentNodeScheme{Type: "text", Text: *comment},
+			Body: util.MarkdownToADF(*comment),
 		}
 	}
 
