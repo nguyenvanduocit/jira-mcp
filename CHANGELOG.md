@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.2.1...v1.3.0) (2026-03-30)
+
+
+### Features
+
+* **cli:** add -assignee and -priority flags to create-issue and update-issue ([a8f63a4](https://github.com/nguyenvanduocit/jira-mcp/commit/a8f63a483a8566ebe728797319220f6252e1b1a6))
+
 ## [1.2.1](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.2.0...v1.2.1) (2026-03-28)
 
 
