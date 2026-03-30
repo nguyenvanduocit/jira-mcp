@@ -61,6 +61,10 @@ Install the Jira MCP server (https://github.com/nguyenvanduocit/jira-mcp) for my
 
 If your AI assistant cannot help with this installation, it indicates either a misconfiguration or an ineffective AI tool. A capable AI assistant should be able to guide you through MCP installation.
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/nguyenvanduocit-jira-mcp).
+
 ## CLI Usage
 
 In addition to the MCP server, `jira-mcp` ships a standalone CLI binary (`jira-cli`) for direct terminal use — no MCP client needed.
