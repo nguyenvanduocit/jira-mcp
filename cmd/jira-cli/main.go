@@ -312,7 +312,9 @@ func runCreateIssue(args []string) {
 	project := fs.String("project", "", "Project key (required, e.g. PROJ)")
 	summary := fs.String("summary", "", "Issue summary (required)")
 	issueType := fs.String("type", "", "Issue type (required, e.g. Bug, Task, Story)")
-	description := fs.String("description", "", "Issue description")
+	description := fs.String("description", "", "Issue description (markdown supported)")
+	assignee := fs.String("assignee", "", "Assignee account ID")
+	priority := fs.String("priority", "", "Priority name (e.g. High, Medium, Low)")
 	fs.Parse(args)
 
 	loadEnv(*env)
@@ -338,6 +340,12 @@ func runCreateIssue(args []string) {
 	}
 	if *description != "" {
 		payload.Fields.Description = util.MarkdownToADF(*description)
+	}
+	if *assignee != "" {
+		payload.Fields.Assignee = &models.UserScheme{AccountID: *assignee}
+	}
+	if *priority != "" {
+		payload.Fields.Priority = &models.PriorityScheme{Name: *priority}
 	}
 
 	issue, response, err := client.Issue.Create(ctx, payload, nil)
@@ -421,7 +429,9 @@ func runUpdateIssue(args []string) {
 	output := fs.String("output", "text", "Output format: text or json")
 	issueKey := fs.String("issue-key", "", "Issue key (required)")
 	summary := fs.String("summary", "", "New summary")
-	description := fs.String("description", "", "New description")
+	description := fs.String("description", "", "New description (markdown supported)")
+	assignee := fs.String("assignee", "", "Assignee account ID")
+	priority := fs.String("priority", "", "Priority name (e.g. High, Medium, Low)")
 	fs.Parse(args)
 
 	loadEnv(*env)
@@ -440,6 +450,12 @@ func runUpdateIssue(args []string) {
 	}
 	if *description != "" {
 		payload.Fields.Description = util.MarkdownToADF(*description)
+	}
+	if *assignee != "" {
+		payload.Fields.Assignee = &models.UserScheme{AccountID: *assignee}
+	}
+	if *priority != "" {
+		payload.Fields.Priority = &models.PriorityScheme{Name: *priority}
 	}
 
 	response, err := client.Issue.Update(ctx, *issueKey, true, payload, nil, nil)
