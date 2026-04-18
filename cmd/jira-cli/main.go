@@ -27,7 +27,7 @@ func loadEnv(envFile string) {
 	}
 }
 
-func printJSON(v interface{}) {
+func printJSON(v any) {
 	enc := json.NewEncoder(os.Stdout)
 	enc.SetIndent("", "  ")
 	if err := enc.Encode(v); err != nil {
@@ -36,46 +36,221 @@ func printJSON(v interface{}) {
 	}
 }
 
-func fatal(format string, args ...interface{}) {
+func fatal(format string, args ...any) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 	os.Exit(1)
 }
 
 func printUsage() {
-	fmt.Fprintf(os.Stderr, `jira-cli - Jira command line interface
+	fmt.Fprintf(os.Stderr, `jira-cli - Command line interface for Atlassian Jira
 
-Usage:
+A CLI tool to manage Jira issues, sprints, comments, worklogs, and more
+directly from your terminal. Part of the jira-mcp project.
+
+USAGE
   jira-cli <command> [flags]
+  jira-cli help
 
-Commands:
-  get-issue              Get a Jira issue by key
-  search-issues          Search issues using JQL
-  create-issue           Create a new issue
-  create-child-issue     Create a child/subtask issue
-  update-issue           Update an existing issue
-  delete-issue           Delete an issue
-  list-issue-types       List issue types for a project
+CONFIGURATION
+  Authentication is configured via environment variables. You can set them
+  directly or load from a .env file using the --env flag.
+
+  Required environment variables:
+    ATLASSIAN_HOST   Your Atlassian instance URL (e.g., https://company.atlassian.net)
+
+  Authentication (choose one):
+    Option A - Jira Cloud (email + API token):
+      ATLASSIAN_EMAIL  Your Atlassian account email
+      ATLASSIAN_TOKEN  API token (create at https://id.atlassian.com/manage-profile/security/api-tokens)
+
+    Option B - Jira Server / Data Center (Personal Access Token):
+      ATLASSIAN_PAT    Personal Access Token (generate from User Profile → Personal Access Tokens)
+      Note: ATLASSIAN_PAT takes precedence if all three vars are set.
+
+  Example .env file (Jira Cloud):
+    ATLASSIAN_HOST=https://mycompany.atlassian.net
+    ATLASSIAN_EMAIL=user@company.com
+    ATLASSIAN_TOKEN=your-api-token
+
+  Example .env file (Jira Server/DC):
+    ATLASSIAN_HOST=https://jira.mycompany.com
+    ATLASSIAN_PAT=your-personal-access-token
+
+GLOBAL FLAGS
+  --env string     Path to .env file for loading environment variables
+  --output string  Output format: "text" (human-readable) or "json" (machine-readable)
+                   Default: text
+
+COMMANDS
+
+  Issue Management
+  ────────────────
+  get-issue              Retrieve a Jira issue with full details
+    --issue-key string     Issue key, e.g. PROJ-123 (required)
+    --fields string        Comma-separated fields to retrieve (default: all)
+    --expand string        Comma-separated expansions (default: transitions,changelog,subtasks,description)
+    Example: jira-cli get-issue --issue-key PROJ-123
+    Example: jira-cli get-issue --issue-key PROJ-123 --fields summary,status --output json
+
+  create-issue           Create a new Jira issue
+    --project string       Project key, e.g. PROJ (required)
+    --summary string       Issue title (required)
+    --type string          Issue type: Bug, Task, Story, Epic, Subtask (required)
+    --description string   Issue description in markdown format
+    --assignee string      Assignee account ID
+    --priority string      Priority name: Highest, High, Medium, Low, Lowest
+    Example: jira-cli create-issue --project PROJ --summary "Fix login bug" --type Bug
+    Example: jira-cli create-issue --project PROJ --summary "New feature" --type Story \
+             --description "## Overview\nA new feature" --priority High
+
+  create-child-issue     Create a subtask under a parent issue
+    --parent-key string    Parent issue key (required)
+    --summary string       Child issue title (required)
+    --description string   Description in markdown format
+    --type string          Issue type (default: Subtask)
+    Example: jira-cli create-child-issue --parent-key PROJ-123 --summary "Subtask 1"
+
+  update-issue           Update fields on an existing issue
+    --issue-key string     Issue key (required)
+    --summary string       New title
+    --description string   New description in markdown format
+    --assignee string      Assignee account ID
+    --priority string      Priority name: Highest, High, Medium, Low, Lowest
+    Example: jira-cli update-issue --issue-key PROJ-123 --summary "Updated title"
+    Example: jira-cli update-issue --issue-key PROJ-123 --priority High --assignee 5a1234b
+
+  delete-issue           Permanently delete an issue (cannot be undone)
+    --issue-key string     Issue key (required)
+    Example: jira-cli delete-issue --issue-key PROJ-123
+
+  list-issue-types       List all available issue types
+    --project string       Project key (accepted but returns all types)
+    Example: jira-cli list-issue-types
+
+  Search
+  ──────
+  search-issues          Search issues using JQL (Jira Query Language)
+    --jql string           JQL query (required)
+    --max-results int      Maximum results to return (default: 30)
+    --fields string        Comma-separated fields to retrieve
+    --expand string        Comma-separated expansions
+    Example: jira-cli search-issues --jql "project = PROJ AND status = 'In Progress'"
+    Example: jira-cli search-issues --jql "assignee = currentUser() ORDER BY updated DESC" --max-results 10
+
+  Sprint Management
+  ─────────────────
   list-sprints           List sprints for a board or project
-  get-sprint             Get a sprint by ID
-  get-active-sprint      Get the active sprint for a board or project
-  search-sprint          Search sprints by name
-  add-comment            Add a comment to an issue
-  get-comments           Get comments for an issue
-  add-worklog            Add a worklog entry to an issue
-  get-transitions        Get available transitions for an issue
-  transition-issue       Transition an issue to a new status
-  list-statuses          List statuses for a project
-  get-issue-history      Get the change history of an issue
-  get-related-issues     Get issues related/linked to an issue
-  link-issues            Create a link between two issues
-  get-version            Get a project version by ID
-  list-project-versions  List all versions for a project
-  get-development-info   Get branches, PRs, commits for an issue
-  download-attachment    Download an issue attachment
+    --board-id string      Board ID
+    --project-key string   Project key
+    (one of --board-id or --project-key is required)
+    Example: jira-cli list-sprints --project-key PROJ
 
-Global flags (available on all commands):
-  --env string     Path to .env file
-  --output string  Output format: text or json (default: text)
+  get-sprint             Get details of a specific sprint
+    --sprint-id int        Sprint ID (required)
+    Example: jira-cli get-sprint --sprint-id 42
+
+  get-active-sprint      Get the currently active sprint
+    --board-id string      Board ID
+    --project-key string   Project key
+    (one of --board-id or --project-key is required)
+    Example: jira-cli get-active-sprint --project-key PROJ
+
+  search-sprint          Search sprints by name
+    --name string          Sprint name to search (required)
+    --board-id string      Board ID
+    --project-key string   Project key
+    --exact-match          Require exact name match (default: false, uses substring)
+    (one of --board-id or --project-key is required)
+    Example: jira-cli search-sprint --name "Sprint 10" --project-key PROJ
+
+  Comments
+  ────────
+  add-comment            Add a comment to an issue (supports markdown)
+    --issue-key string     Issue key (required)
+    --comment string       Comment text in markdown format (required)
+    Example: jira-cli add-comment --issue-key PROJ-123 --comment "Fixed in **v2.1**"
+
+  get-comments           Retrieve all comments on an issue
+    --issue-key string     Issue key (required)
+    Example: jira-cli get-comments --issue-key PROJ-123
+
+  Worklogs
+  ────────
+  add-worklog            Log time spent on an issue
+    --issue-key string     Issue key (required)
+    --time-spent string    Duration: "1h30m", "3h", "30m", or seconds (required)
+    --comment string       Work description in markdown format
+    --started string       Start time in ISO 8601 (default: now)
+    Example: jira-cli add-worklog --issue-key PROJ-123 --time-spent 2h30m
+    Example: jira-cli add-worklog --issue-key PROJ-123 --time-spent 1h \
+             --comment "Code review" --started "2025-01-15T09:00:00.000+0700"
+
+  Status & Transitions
+  ────────────────────
+  get-transitions        List available status transitions for an issue
+    --issue-key string     Issue key (required)
+    Example: jira-cli get-transitions --issue-key PROJ-123
+
+  transition-issue       Move an issue to a new status
+    --issue-key string     Issue key (required)
+    --transition-id string Transition ID from get-transitions (required)
+    Example: jira-cli transition-issue --issue-key PROJ-123 --transition-id 31
+
+  list-statuses          List all statuses for a project
+    --project-key string   Project key (required)
+    Example: jira-cli list-statuses --project-key PROJ
+
+  History & Relationships
+  ──────────────────────
+  get-issue-history      View the change history of an issue
+    --issue-key string     Issue key (required)
+    Example: jira-cli get-issue-history --issue-key PROJ-123
+
+  get-related-issues     Get linked/related issues
+    --issue-key string     Issue key (required)
+    Example: jira-cli get-related-issues --issue-key PROJ-123
+
+  link-issues            Create a relationship between two issues
+    --inward-issue string  Inward issue key (required)
+    --outward-issue string Outward issue key (required)
+    --link-type string     Relationship type: Blocks, Duplicate, Relates, etc. (required)
+    --comment string       Optional comment in markdown format
+    Example: jira-cli link-issues --inward-issue PROJ-1 --outward-issue PROJ-2 --link-type Blocks
+
+  Versions
+  ────────
+  get-version            Get details of a project version
+    --version-id string    Version ID (required)
+    Example: jira-cli get-version --version-id 10001
+
+  list-project-versions  List all versions in a project
+    --project-key string   Project key (required)
+    Example: jira-cli list-project-versions --project-key PROJ
+
+  Development
+  ───────────
+  get-development-info   Get linked branches, PRs, and commits for an issue
+    --issue-key string            Issue key (required)
+    --include-branches bool       Include branches (default: true)
+    --include-pull-requests bool  Include pull requests (default: true)
+    --include-commits bool        Include commits (default: true)
+    --include-builds bool         Include builds (default: true)
+    Example: jira-cli get-development-info --issue-key PROJ-123
+
+  Attachments
+  ───────────
+  download-attachment    Download an attachment from an issue
+    --attachment-id string Attachment ID (required)
+    Example: jira-cli download-attachment --attachment-id 10500
+
+NOTES
+  - Description and comment fields accept markdown, which is automatically
+    converted to Atlassian Document Format (ADF) before sending to Jira.
+  - Use --output json on any command to get machine-readable output.
+  - Sprint commands require either --board-id or --project-key. If you use
+    --project-key, the CLI looks up associated boards automatically.
+  - To find a transition ID, first run get-transitions for your issue,
+    then use the returned ID with transition-issue.
 
 `)
 }
@@ -262,6 +437,7 @@ func searchIssuesJQL(ctx context.Context, jql string, fields []string, expand []
 	host := os.Getenv("ATLASSIAN_HOST")
 	mail := os.Getenv("ATLASSIAN_EMAIL")
 	token := os.Getenv("ATLASSIAN_TOKEN")
+	pat := os.Getenv("ATLASSIAN_PAT")
 
 	params := url.Values{}
 	params.Set("jql", jql)
@@ -283,7 +459,7 @@ func searchIssuesJQL(ctx context.Context, jql string, fields []string, expand []
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
-	req.SetBasicAuth(mail, token)
+	services.ApplyAtlassianAuth(req, mail, token, pat)
 	req.Header.Set("Accept", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
@@ -709,7 +885,7 @@ func runSearchSprint(args []string) {
 	}
 
 	searchTerm := strings.ToLower(*name)
-	var matches []interface{}
+	var matches []any
 
 	for _, bid := range boardIDs {
 		sprints, response, err := services.AgileClient().Board.Sprints(ctx, bid, 0, 100, []string{"active", "future", "closed"})
@@ -794,6 +970,9 @@ func runGetComments(args []string) {
 	env := fs.String("env", "", "Path to .env file")
 	output := fs.String("output", "text", "Output format: text or json")
 	issueKey := fs.String("issue-key", "", "Issue key (required)")
+	startAt := fs.Int("start-at", 0, "Zero-based index of the first comment")
+	maxComments := fs.Int("max-comments", 0, "Maximum comments to return (0 = all)")
+	orderBy := fs.String("order-by", "", "Order, e.g. 'created' or '-created'")
 	fs.Parse(args)
 
 	loadEnv(*env)
@@ -804,7 +983,9 @@ func runGetComments(args []string) {
 	ctx := context.Background()
 	client := services.JiraClient()
 
-	comments, response, err := client.Issue.Comment.Gets(ctx, *issueKey, "", nil, 0, 50)
+	comments, total, truncated, response, err := util.FetchAllComments(
+		ctx, client, *issueKey, *orderBy, *startAt, *maxComments,
+	)
 	if err != nil {
 		if response != nil {
 			fatal("failed to get comments: %s (endpoint: %s)", response.Bytes.String(), response.Endpoint)
@@ -813,15 +994,23 @@ func runGetComments(args []string) {
 	}
 
 	if *output == "json" {
-		printJSON(comments)
+		printJSON(map[string]any{
+			"issueKey":  *issueKey,
+			"total":     total,
+			"startAt":   *startAt,
+			"returned":  len(comments),
+			"truncated": truncated,
+			"comments":  comments,
+		})
 		return
 	}
 
-	if len(comments.Comments) == 0 {
+	fmt.Println(util.FormatCommentsHeader(*issueKey, total, len(comments), *startAt, truncated))
+	if len(comments) == 0 {
 		fmt.Println("No comments found.")
 		return
 	}
-	for _, c := range comments.Comments {
+	for _, c := range comments {
 		author := "Unknown"
 		if c.Author != nil {
 			author = c.Author.DisplayName
@@ -1276,7 +1465,7 @@ func runGetDevelopmentInfo(args []string) {
 		fatal("failed to get issue: %v", err)
 	}
 
-	result := map[string]interface{}{
+	result := map[string]any{
 		"issue_key":        *issueKey,
 		"issue_id":         issue.ID,
 		"include_branches": *includeBranches,
@@ -1346,7 +1535,7 @@ func runDownloadAttachment(args []string) {
 	}
 
 	if *output == "json" {
-		printJSON(map[string]interface{}{
+		printJSON(map[string]any{
 			"file":      filePath,
 			"filename":  metadata.Filename,
 			"size":      metadata.Size,
