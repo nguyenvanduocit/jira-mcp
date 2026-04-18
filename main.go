@@ -82,19 +82,34 @@ func main() {
 		server.WithRecovery(),
 	)
 
+	// Build the tool filter from ENABLED_TOOLS. When the env var is unset or
+	// empty, all tools are registered (backwards compatible). Otherwise only
+	// the comma-separated allowlist is exposed — useful for read-only agents.
+	filter := tools.NewFilterFromEnv()
+
 	// Register all Jira tools
-	tools.RegisterJiraIssueTool(mcpServer)
-	tools.RegisterJiraSearchTool(mcpServer)
-	tools.RegisterJiraSprintTool(mcpServer)
-	tools.RegisterJiraStatusTool(mcpServer)
-	tools.RegisterJiraTransitionTool(mcpServer)
-	tools.RegisterJiraWorklogTool(mcpServer)
-	tools.RegisterJiraCommentTools(mcpServer)
-	tools.RegisterJiraHistoryTool(mcpServer)
-	tools.RegisterJiraRelationshipTool(mcpServer)
-	tools.RegisterJiraVersionTool(mcpServer)
-	tools.RegisterJiraDevelopmentTool(mcpServer)
-	tools.RegisterJiraAttachmentTool(mcpServer)
+	tools.RegisterJiraIssueTool(mcpServer, filter)
+	tools.RegisterJiraSearchTool(mcpServer, filter)
+	tools.RegisterJiraSprintTool(mcpServer, filter)
+	tools.RegisterJiraStatusTool(mcpServer, filter)
+	tools.RegisterJiraTransitionTool(mcpServer, filter)
+	tools.RegisterJiraWorklogTool(mcpServer, filter)
+	tools.RegisterJiraCommentTools(mcpServer, filter)
+	tools.RegisterJiraHistoryTool(mcpServer, filter)
+	tools.RegisterJiraRelationshipTool(mcpServer, filter)
+	tools.RegisterJiraVersionTool(mcpServer, filter)
+	tools.RegisterJiraDevelopmentTool(mcpServer, filter)
+	tools.RegisterJiraAttachmentTool(mcpServer, filter)
+
+	if filter.IsRestricted() {
+		enabled := filter.EnabledNames()
+		fmt.Printf("🔒 ENABLED_TOOLS active — exposing %d tool(s): %s\n",
+			len(enabled), strings.Join(enabled, ", "))
+		if unknown := filter.UnknownNames(); len(unknown) > 0 {
+			fmt.Printf("⚠️  Unknown tool name(s) in ENABLED_TOOLS (ignored): %s\n",
+				strings.Join(unknown, ", "))
+		}
+	}
 
 	// Register all Jira prompts
 	prompts.RegisterJiraPrompts(mcpServer)

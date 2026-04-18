@@ -220,6 +220,26 @@ Cursor config (HTTP mode):
 ```json
 { "mcpServers": { "jira": { "url": "http://localhost:3000/mcp" } } }
 ```
+
+### Limiting which tools are exposed (ENABLED_TOOLS)
+
+By default every Jira tool is registered. To expose only a subset — for example, to hand an AI agent a read-only view of Jira — set the `ENABLED_TOOLS` environment variable to a comma-separated allowlist of tool names:
+
+```bash
+ENABLED_TOOLS=jira_get_issue,jira_search_issue,jira_get_comments
+```
+
+Rules:
+- Unset or empty → all tools are exposed (backwards compatible).
+- Whitespace around names is tolerated.
+- Unknown names are ignored but logged at startup so typos surface immediately.
+- Names that are not listed are simply not registered, so the MCP client never sees them.
+
+Read-only agent example (exposes 15 reads, blocks all 8 mutating tools):
+
+```bash
+ENABLED_TOOLS=jira_get_issue,jira_search_issue,jira_list_statuses,jira_get_comments,jira_get_issue_history,jira_get_related_issues,jira_list_sprints,jira_get_sprint,jira_get_active_sprint,jira_search_sprint_by_name,jira_get_version,jira_list_project_versions,jira_get_development_information,jira_download_attachment,jira_list_issue_types
+```
 ## Installation
 
 ### Homebrew (macOS/Linux)

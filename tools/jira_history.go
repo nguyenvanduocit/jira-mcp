@@ -36,12 +36,12 @@ type GetIssueHistoryOutput struct {
 	Count    int            `json:"count"`
 }
 
-func RegisterJiraHistoryTool(s *server.MCPServer) {
+func RegisterJiraHistoryTool(s *server.MCPServer, filter *Filter) {
 	jiraGetIssueHistoryTool := mcp.NewTool("jira_get_issue_history",
 		mcp.WithDescription("Retrieve the complete change history of a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
-	s.AddTool(jiraGetIssueHistoryTool, mcp.NewTypedToolHandler(jiraGetIssueHistoryHandler))
+	filter.AddTool(s, jiraGetIssueHistoryTool, mcp.NewTypedToolHandler(jiraGetIssueHistoryHandler))
 }
 
 func jiraGetIssueHistoryHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueHistoryInput) (*mcp.CallToolResult, error) {

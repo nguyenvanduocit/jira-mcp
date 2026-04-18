@@ -34,26 +34,26 @@ type SearchSprintByNameInput struct {
 	ExactMatch bool   `json:"exact_match,omitempty"`
 }
 
-func RegisterJiraSprintTool(s *server.MCPServer) {
+func RegisterJiraSprintTool(s *server.MCPServer, filter *Filter) {
 	jiraListSprintTool := mcp.NewTool("jira_list_sprints",
 		mcp.WithDescription("List all active and future sprints for a specific Jira board or project. Requires either board_id or project_key."),
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board (can be found in board URL). Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraListSprintTool, mcp.NewTypedToolHandler(jiraListSprintHandler))
+	filter.AddTool(s, jiraListSprintTool, mcp.NewTypedToolHandler(jiraListSprintHandler))
 
 	jiraGetSprintTool := mcp.NewTool("jira_get_sprint",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira sprint by its ID"),
 		mcp.WithString("sprint_id", mcp.Required(), mcp.Description("Numeric ID of the sprint to retrieve")),
 	)
-	s.AddTool(jiraGetSprintTool, mcp.NewTypedToolHandler(jiraGetSprintHandler))
+	filter.AddTool(s, jiraGetSprintTool, mcp.NewTypedToolHandler(jiraGetSprintHandler))
 
 	jiraGetActiveSprintTool := mcp.NewTool("jira_get_active_sprint",
 		mcp.WithDescription("Get the currently active sprint for a given board or project. Requires either board_id or project_key."),
 		mcp.WithString("board_id", mcp.Description("Numeric ID of the Jira board. Optional if project_key is provided.")),
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV). Optional if board_id is provided.")),
 	)
-	s.AddTool(jiraGetActiveSprintTool, mcp.NewTypedToolHandler(jiraGetActiveSprintHandler))
+	filter.AddTool(s, jiraGetActiveSprintTool, mcp.NewTypedToolHandler(jiraGetActiveSprintHandler))
 
 	jiraSearchSprintByNameTool := mcp.NewTool("jira_search_sprint_by_name",
 		mcp.WithDescription("Search for sprints by name across boards or projects. Supports both exact and partial name matching."),
@@ -62,7 +62,7 @@ func RegisterJiraSprintTool(s *server.MCPServer) {
 		mcp.WithString("project_key", mcp.Description("The project key (e.g., KP, PROJ, DEV) to search in. Optional if board_id is provided.")),
 		mcp.WithBoolean("exact_match", mcp.Description("If true, only return sprints with exact name match. Default is false (partial matching).")),
 	)
-	s.AddTool(jiraSearchSprintByNameTool, mcp.NewTypedToolHandler(searchSprintByNameHandler))
+	filter.AddTool(s, jiraSearchSprintByNameTool, mcp.NewTypedToolHandler(searchSprintByNameHandler))
 }
 
 // Helper function to get board IDs either from direct board_id or by finding boards for a project

@@ -15,12 +15,12 @@ type ListStatusesInput struct {
 	ProjectKey string `json:"project_key" validate:"required"`
 }
 
-func RegisterJiraStatusTool(s *server.MCPServer) {
+func RegisterJiraStatusTool(s *server.MCPServer, filter *Filter) {
 	jiraStatusListTool := mcp.NewTool("jira_list_statuses",
 		mcp.WithDescription("Retrieve all available issue status IDs and their names for a specific Jira project"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraStatusListTool, mcp.NewTypedToolHandler(jiraGetStatusesHandler))
+	filter.AddTool(s, jiraStatusListTool, mcp.NewTypedToolHandler(jiraGetStatusesHandler))
 }
 
 func jiraGetStatusesHandler(ctx context.Context, request mcp.CallToolRequest, input ListStatusesInput) (*mcp.CallToolResult, error) {

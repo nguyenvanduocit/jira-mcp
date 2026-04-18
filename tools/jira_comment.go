@@ -21,19 +21,19 @@ type GetCommentsInput struct {
 	IssueKey string `json:"issue_key" validate:"required"`
 }
 
-func RegisterJiraCommentTools(s *server.MCPServer) {
+func RegisterJiraCommentTools(s *server.MCPServer, filter *Filter) {
 	jiraAddCommentTool := mcp.NewTool("jira_add_comment",
 		mcp.WithDescription("Add a comment to a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 		mcp.WithString("comment", mcp.Required(), mcp.Description("The comment text to add to the issue")),
 	)
-	s.AddTool(jiraAddCommentTool, mcp.NewTypedToolHandler(jiraAddCommentHandler))
+	filter.AddTool(s, jiraAddCommentTool, mcp.NewTypedToolHandler(jiraAddCommentHandler))
 
 	jiraGetCommentsTool := mcp.NewTool("jira_get_comments",
 		mcp.WithDescription("Retrieve all comments from a Jira issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
-	s.AddTool(jiraGetCommentsTool, mcp.NewTypedToolHandler(jiraGetCommentsHandler))
+	filter.AddTool(s, jiraGetCommentsTool, mcp.NewTypedToolHandler(jiraGetCommentsHandler))
 }
 
 func jiraAddCommentHandler(ctx context.Context, request mcp.CallToolRequest, input AddCommentInput) (*mcp.CallToolResult, error) {

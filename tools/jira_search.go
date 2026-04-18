@@ -83,14 +83,14 @@ func searchIssuesJQL(ctx context.Context, client *jira.Client, jql string, field
 	return &searchResult, nil
 }
 
-func RegisterJiraSearchTool(s *server.MCPServer) {
+func RegisterJiraSearchTool(s *server.MCPServer, filter *Filter) {
 	jiraSearchTool := mcp.NewTool("jira_search_issue",
 		mcp.WithDescription("Search for Jira issues using JQL (Jira Query Language). Returns key details like summary, status, assignee, and priority for matching issues"),
 		mcp.WithString("jql", mcp.Required(), mcp.Description("JQL query string (e.g., 'project = SHTP AND status = \"In Progress\"')")),
 		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
 		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks,description').")),
 	)
-	s.AddTool(jiraSearchTool, mcp.NewTypedToolHandler(jiraSearchHandler))
+	filter.AddTool(s, jiraSearchTool, mcp.NewTypedToolHandler(jiraSearchHandler))
 }
 
 func jiraSearchHandler(ctx context.Context, request mcp.CallToolRequest, input SearchIssueInput) (*mcp.CallToolResult, error) {

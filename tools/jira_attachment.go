@@ -16,12 +16,12 @@ type DownloadAttachmentInput struct {
 	AttachmentID string `json:"attachment_id" validate:"required"`
 }
 
-func RegisterJiraAttachmentTool(s *server.MCPServer) {
+func RegisterJiraAttachmentTool(s *server.MCPServer, filter *Filter) {
 	tool := mcp.NewTool("jira_download_attachment",
 		mcp.WithDescription("Download a Jira attachment to a local temporary file and return the absolute file path. Use attachment IDs from jira_get_issue output."),
 		mcp.WithString("attachment_id", mcp.Required(), mcp.Description("The ID of the attachment to download (e.g., 10010)")),
 	)
-	s.AddTool(tool, mcp.NewTypedToolHandler(jiraDownloadAttachmentHandler))
+	filter.AddTool(s, tool, mcp.NewTypedToolHandler(jiraDownloadAttachmentHandler))
 }
 
 func jiraDownloadAttachmentHandler(ctx context.Context, request mcp.CallToolRequest, input DownloadAttachmentInput) (*mcp.CallToolResult, error) {

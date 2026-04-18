@@ -47,14 +47,14 @@ type DeleteIssueInput struct {
 	IssueKey string `json:"issue_key" validate:"required"`
 }
 
-func RegisterJiraIssueTool(s *server.MCPServer) {
+func RegisterJiraIssueTool(s *server.MCPServer, filter *Filter) {
 	jiraGetIssueTool := mcp.NewTool("jira_get_issue",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira issue including its status, assignee, description, subtasks, and available transitions"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 		mcp.WithString("fields", mcp.Description("Comma-separated list of fields to retrieve (e.g., 'summary,status,assignee'). If not specified, all fields are returned.")),
 		mcp.WithString("expand", mcp.Description("Comma-separated list of fields to expand for additional details (e.g., 'transitions,changelog,subtasks'). Default: 'transitions,changelog'")),
 	)
-	s.AddTool(jiraGetIssueTool, mcp.NewTypedToolHandler(jiraGetIssueHandler))
+	filter.AddTool(s, jiraGetIssueTool, mcp.NewTypedToolHandler(jiraGetIssueHandler))
 
 	jiraCreateIssueTool := mcp.NewTool("jira_create_issue",
 		mcp.WithDescription("Create a new Jira issue with specified details. Returns the created issue's key, ID, and URL"),
@@ -63,7 +63,7 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("description", mcp.Required(), mcp.Description("Detailed explanation of the issue")),
 		mcp.WithString("issue_type", mcp.Required(), mcp.Description("Type of issue to create (common types: Bug, Task, Subtask, Story, Epic)")),
 	)
-	s.AddTool(jiraCreateIssueTool, mcp.NewTypedToolHandler(jiraCreateIssueHandler))
+	filter.AddTool(s, jiraCreateIssueTool, mcp.NewTypedToolHandler(jiraCreateIssueHandler))
 
 	jiraCreateChildIssueTool := mcp.NewTool("jira_create_child_issue",
 		mcp.WithDescription("Create a child issue (sub-task) linked to a parent issue in Jira. Returns the created issue's key, ID, and URL"),
@@ -72,7 +72,7 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("description", mcp.Required(), mcp.Description("Detailed explanation of the child issue")),
 		mcp.WithString("issue_type", mcp.Description("Type of child issue to create (defaults to 'Subtask' if not specified)")),
 	)
-	s.AddTool(jiraCreateChildIssueTool, mcp.NewTypedToolHandler(jiraCreateChildIssueHandler))
+	filter.AddTool(s, jiraCreateChildIssueTool, mcp.NewTypedToolHandler(jiraCreateChildIssueHandler))
 
 	jiraUpdateIssueTool := mcp.NewTool("jira_update_issue",
 		mcp.WithDescription("Modify an existing Jira issue's details. Supports partial updates - only specified fields will be changed"),
@@ -80,19 +80,19 @@ func RegisterJiraIssueTool(s *server.MCPServer) {
 		mcp.WithString("summary", mcp.Description("New title for the issue (optional)")),
 		mcp.WithString("description", mcp.Description("New description for the issue (optional)")),
 	)
-	s.AddTool(jiraUpdateIssueTool, mcp.NewTypedToolHandler(jiraUpdateIssueHandler))
+	filter.AddTool(s, jiraUpdateIssueTool, mcp.NewTypedToolHandler(jiraUpdateIssueHandler))
 
 	jiraListIssueTypesTool := mcp.NewTool("jira_list_issue_types",
 		mcp.WithDescription("List all available issue types in a Jira project with their IDs, names, descriptions, and other attributes"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier to list issue types for (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraListIssueTypesTool, mcp.NewTypedToolHandler(jiraListIssueTypesHandler))
+	filter.AddTool(s, jiraListIssueTypesTool, mcp.NewTypedToolHandler(jiraListIssueTypesHandler))
 
 	jiraDeleteIssueTool := mcp.NewTool("jira_delete_issue",
 		mcp.WithDescription("Delete a Jira issue permanently. This action cannot be undone."),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the issue to delete (e.g., SHTP-6216, PROJ-123)")),
 	)
-	s.AddTool(jiraDeleteIssueTool, mcp.NewTypedToolHandler(jiraDeleteIssueHandler))
+	filter.AddTool(s, jiraDeleteIssueTool, mcp.NewTypedToolHandler(jiraDeleteIssueHandler))
 }
 
 func jiraGetIssueHandler(ctx context.Context, request mcp.CallToolRequest, input GetIssueInput) (*mcp.CallToolResult, error) {

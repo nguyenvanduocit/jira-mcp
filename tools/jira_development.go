@@ -197,7 +197,7 @@ type RefInfo struct {
 }
 
 // RegisterJiraDevelopmentTool registers the jira_get_development_information tool
-func RegisterJiraDevelopmentTool(s *server.MCPServer) {
+func RegisterJiraDevelopmentTool(s *server.MCPServer, filter *Filter) {
 	tool := mcp.NewTool("jira_get_development_information",
 		mcp.WithDescription("Retrieve branches, pull requests, commits, and builds linked to a Jira issue via development tool integrations (GitHub, GitLab, Bitbucket, CI/CD providers). Returns human-readable formatted text showing all development work associated with the issue."),
 		mcp.WithString("issue_key",
@@ -212,7 +212,7 @@ func RegisterJiraDevelopmentTool(s *server.MCPServer) {
 		mcp.WithBoolean("include_builds",
 			mcp.Description("Include CI/CD builds in the response (default: true)")),
 	)
-	s.AddTool(tool, mcp.NewTypedToolHandler(jiraGetDevelopmentInfoHandler))
+	filter.AddTool(s, tool, mcp.NewTypedToolHandler(jiraGetDevelopmentInfoHandler))
 }
 
 // jiraGetDevelopmentInfoHandler retrieves development information for a Jira issue.

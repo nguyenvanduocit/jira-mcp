@@ -21,7 +21,7 @@ type AddWorklogInput struct {
 	Started   string `json:"started,omitempty"`
 }
 
-func RegisterJiraWorklogTool(s *server.MCPServer) {
+func RegisterJiraWorklogTool(s *server.MCPServer, filter *Filter) {
 	jiraAddWorklogTool := mcp.NewTool("jira_add_worklog",
 		mcp.WithDescription("Add a worklog to a Jira issue to track time spent on the issue"),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
@@ -29,7 +29,7 @@ func RegisterJiraWorklogTool(s *server.MCPServer) {
 		mcp.WithString("comment", mcp.Description("Comment describing the work done")),
 		mcp.WithString("started", mcp.Description("When the work began, in ISO 8601 format (e.g., 2023-05-01T10:00:00.000+0000). Defaults to current time.")),
 	)
-	s.AddTool(jiraAddWorklogTool, mcp.NewTypedToolHandler(jiraAddWorklogHandler))
+	filter.AddTool(s, jiraAddWorklogTool, mcp.NewTypedToolHandler(jiraAddWorklogHandler))
 }
 
 func jiraAddWorklogHandler(ctx context.Context, request mcp.CallToolRequest, input AddWorklogInput) (*mcp.CallToolResult, error) {
