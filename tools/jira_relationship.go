@@ -24,12 +24,12 @@ type LinkIssuesInput struct {
 	Comment      string `json:"comment,omitempty"`
 }
 
-func RegisterJiraRelationshipTool(s *server.MCPServer) {
+func RegisterJiraRelationshipTool(s *server.MCPServer, filter *Filter) {
 	jiraRelationshipTool := mcp.NewTool("jira_get_related_issues",
 		mcp.WithDescription("Retrieve issues that have a relationship with a given issue, such as blocks, is blocked by, relates to, etc."),
 		mcp.WithString("issue_key", mcp.Required(), mcp.Description("The unique identifier of the Jira issue (e.g., KP-2, PROJ-123)")),
 	)
-	s.AddTool(jiraRelationshipTool, mcp.NewTypedToolHandler(jiraRelationshipHandler))
+	filter.AddTool(s, jiraRelationshipTool, mcp.NewTypedToolHandler(jiraRelationshipHandler))
 
 	jiraLinkTool := mcp.NewTool("jira_link_issues",
 		mcp.WithDescription("Create a link between two Jira issues, defining their relationship (e.g., blocks, duplicates, relates to)"),
@@ -38,7 +38,7 @@ func RegisterJiraRelationshipTool(s *server.MCPServer) {
 		mcp.WithString("link_type", mcp.Required(), mcp.Description("The type of link between issues (e.g., Duplicate, Blocks, Relates)")),
 		mcp.WithString("comment", mcp.Description("Optional comment to add when creating the link")),
 	)
-	s.AddTool(jiraLinkTool, mcp.NewTypedToolHandler(jiraLinkHandler))
+	filter.AddTool(s, jiraLinkTool, mcp.NewTypedToolHandler(jiraLinkHandler))
 }
 
 func jiraRelationshipHandler(ctx context.Context, request mcp.CallToolRequest, input GetRelatedIssuesInput) (*mcp.CallToolResult, error) {

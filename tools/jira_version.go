@@ -19,18 +19,18 @@ type ListProjectVersionsInput struct {
 	ProjectKey string `json:"project_key" validate:"required"`
 }
 
-func RegisterJiraVersionTool(s *server.MCPServer) {
+func RegisterJiraVersionTool(s *server.MCPServer, filter *Filter) {
 	jiraGetVersionTool := mcp.NewTool("jira_get_version",
 		mcp.WithDescription("Retrieve detailed information about a specific Jira project version including its name, description, release date, and status"),
 		mcp.WithString("version_id", mcp.Required(), mcp.Description("The unique identifier of the version to retrieve (e.g., 10000)")),
 	)
-	s.AddTool(jiraGetVersionTool, mcp.NewTypedToolHandler(jiraGetVersionHandler))
+	filter.AddTool(s, jiraGetVersionTool, mcp.NewTypedToolHandler(jiraGetVersionHandler))
 
 	jiraListProjectVersionsTool := mcp.NewTool("jira_list_project_versions",
 		mcp.WithDescription("List all versions in a Jira project with their details including names, descriptions, release dates, and statuses"),
 		mcp.WithString("project_key", mcp.Required(), mcp.Description("Project identifier to list versions for (e.g., KP, PROJ)")),
 	)
-	s.AddTool(jiraListProjectVersionsTool, mcp.NewTypedToolHandler(jiraListProjectVersionsHandler))
+	filter.AddTool(s, jiraListProjectVersionsTool, mcp.NewTypedToolHandler(jiraListProjectVersionsHandler))
 }
 
 func jiraGetVersionHandler(ctx context.Context, request mcp.CallToolRequest, input GetVersionInput) (*mcp.CallToolResult, error) {
