@@ -25,13 +25,18 @@ jobs:
       - uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Use a fine-grained PAT (contents:write, pull-requests:write) so
+          # the release PR's auto-merge commit can trigger the follow-up
+          # workflow run that cuts the tag and invokes GoReleaser. The
+          # default GITHUB_TOKEN cannot, because GitHub Actions blocks
+          # recursive triggering of workflows from its own commits.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
           release-type: go
 
       - name: Auto-merge release PR
         if: ${{ steps.release.outputs.pr }}
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
         run: gh pr merge --merge "${{ fromJson(steps.release.outputs.pr).number }}" --repo ${{ github.repository }}
 
   goreleaser:
