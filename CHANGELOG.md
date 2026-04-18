@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.4.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.3.0...v1.4.0) (2026-04-18)
+
+
+### Features
+
+* **auth:** accept PAT-only auth for Jira Server/DC startup ([#58](https://github.com/nguyenvanduocit/jira-mcp/issues/58)) ([ff09742](https://github.com/nguyenvanduocit/jira-mcp/commit/ff09742d1f7d24cfed3a97bd665601f371d8753a))
+* **auth:** add Bearer token auth path for Jira Server/DC PATs ([f2f8333](https://github.com/nguyenvanduocit/jira-mcp/commit/f2f833343236ebc00e5c3d99ba091d48ed4a1e91))
+
+
+### Bug Fixes
+
+* **adf:** make inline code mark exclusive per Jira ADF constraint ([0a1f455](https://github.com/nguyenvanduocit/jira-mcp/commit/0a1f455b0a51b6309c9a49df297a7f227c2cc275))
+* **comments:** paginate jira_get_comments past 50-comment hardcap ([#61](https://github.com/nguyenvanduocit/jira-mcp/issues/61)) ([b7e8f50](https://github.com/nguyenvanduocit/jira-mcp/commit/b7e8f50f6997d580f9d5e7d8abae80bccbd458c1))
+* **tools:** thread Filter through relationship and version registration ([f9cd54e](https://github.com/nguyenvanduocit/jira-mcp/commit/f9cd54e2070bb34801caedf70961d6db805dfc8f))
+
 ## [1.3.0](https://github.com/nguyenvanduocit/jira-mcp/compare/v1.2.1...v1.3.0) (2026-03-30)
 
 
