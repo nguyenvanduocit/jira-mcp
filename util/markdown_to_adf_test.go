@@ -235,6 +235,63 @@ func TestMarkdownToADF_BoldItalic(t *testing.T) {
 	}
 }
 
+// Regression test for the Jira ADF constraint: the "code" mark is exclusive —
+// combining it with strong/em/strike produces invalid ADF that Jira rejects.
+// See util/markdown_to_adf.go:convertInline for the CodeSpan branch.
+func TestMarkdownToADF_CodeMarkIsExclusiveInsideBold(t *testing.T) {
+	// "**bold `code` bold**" — the code span sits inside strong emphasis.
+	// Without the fix, the inner text would carry [strong, code].
+	result := MarkdownToADF("**bold `code` bold**")
+	if len(result.Content) == 0 {
+		t.Fatal("no content")
+	}
+	p := result.Content[0]
+
+	// Find the text node whose Text is "code".
+	var codeNode *models.CommentNodeScheme
+	for _, n := range p.Content {
+		if n.Text == "code" {
+			codeNode = n
+			break
+		}
+	}
+	if codeNode == nil {
+		t.Fatalf("expected a text node with Text=%q, got content=%+v", "code", p.Content)
+	}
+
+	if len(codeNode.Marks) != 1 {
+		t.Fatalf("code span must carry exactly one mark, got %d: %+v", len(codeNode.Marks), codeNode.Marks)
+	}
+	if codeNode.Marks[0].Type != "code" {
+		t.Errorf("code span mark type = %q, want %q", codeNode.Marks[0].Type, "code")
+	}
+}
+
+func TestMarkdownToADF_CodeMarkIsExclusiveInsideLink(t *testing.T) {
+	// "[text with `code` inside](https://example.com)" — code span inside link.
+	// Code mark must stand alone; surrounding text keeps the link mark.
+	result := MarkdownToADF("[text with `code` inside](https://example.com)")
+	if len(result.Content) == 0 {
+		t.Fatal("no content")
+	}
+	p := result.Content[0]
+
+	var codeNode *models.CommentNodeScheme
+	for _, n := range p.Content {
+		if n.Text == "code" {
+			codeNode = n
+			break
+		}
+	}
+	if codeNode == nil {
+		t.Fatalf("expected a text node with Text=%q, got content=%+v", "code", p.Content)
+	}
+
+	if len(codeNode.Marks) != 1 || codeNode.Marks[0].Type != "code" {
+		t.Errorf("code span must carry only [code] mark, got %+v", codeNode.Marks)
+	}
+}
+
 func TestMarkdownToADF_ValidJSON(t *testing.T) {
 	input := "# Hello\n\nWorld **bold** and *italic*\n\n- list\n\n```go\ncode\n```"
 	result := MarkdownToADF(input)

@@ -203,11 +203,12 @@ func convertInline(n ast.Node, adfParent *models.CommentNodeScheme, source []byt
 		}
 		t := buf.String()
 		if t != "" {
-			newMarks := append(copyMarks(marks), &models.MarkScheme{Type: "code"})
+			// The "code" mark in Jira ADF is exclusive — it cannot be combined
+			// with any other mark (strong, em, strike). Always use only [code].
 			adfParent.AppendNode(&models.CommentNodeScheme{
 				Type:  "text",
 				Text:  t,
-				Marks: newMarks,
+				Marks: []*models.MarkScheme{{Type: "code"}},
 			})
 		}
 
