@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/nguyenvanduocit/jira-mcp/prompts"
+	"github.com/nguyenvanduocit/jira-mcp/services"
 	"github.com/nguyenvanduocit/jira-mcp/tools"
 )
 
@@ -29,14 +30,14 @@ func main() {
 		}
 	}
 
-	// Check required environment variables
-	requiredEnvs := []string{"ATLASSIAN_HOST", "ATLASSIAN_EMAIL", "ATLASSIAN_TOKEN"}
-	missingEnvs := []string{}
-	for _, env := range requiredEnvs {
-		if os.Getenv(env) == "" {
-			missingEnvs = append(missingEnvs, env)
-		}
-	}
+	// Check required environment variables. Two authentication modes are
+	// accepted: Jira Cloud (EMAIL+TOKEN) and Jira Server/DC (PAT).
+	missingEnvs := services.ValidateAtlassianEnv(
+		os.Getenv("ATLASSIAN_HOST"),
+		os.Getenv("ATLASSIAN_EMAIL"),
+		os.Getenv("ATLASSIAN_TOKEN"),
+		os.Getenv("ATLASSIAN_PAT"),
+	)
 
 	if len(missingEnvs) > 0 {
 		fmt.Println("❌ Configuration Error: Missing required environment variables")
@@ -47,25 +48,23 @@ func main() {
 		}
 		fmt.Println()
 		fmt.Println("📋 Setup Instructions:")
-		fmt.Println("1. Get your Atlassian API token from: https://id.atlassian.com/manage-profile/security/api-tokens")
-		fmt.Println("2. Set the environment variables:")
 		fmt.Println()
-		fmt.Println("   Option A - Using .env file:")
-		fmt.Println("   Create a .env file with:")
-               fmt.Println("   ATLASSIAN_HOST=https://your-domain.atlassian.net")
-		fmt.Println("   ATLASSIAN_EMAIL=your-email@example.com")
-		fmt.Println("   ATLASSIAN_TOKEN=your-api-token")
+		fmt.Println("  For Jira Cloud — API token:")
+		fmt.Println("    Create token at https://id.atlassian.com/manage-profile/security/api-tokens")
+		fmt.Println("    ATLASSIAN_HOST=https://your-domain.atlassian.net")
+		fmt.Println("    ATLASSIAN_EMAIL=your-email@example.com")
+		fmt.Println("    ATLASSIAN_TOKEN=your-api-token")
 		fmt.Println()
-		fmt.Println("   Option B - Using environment variables:")
-               fmt.Println("   export ATLASSIAN_HOST=https://your-domain.atlassian.net")
-		fmt.Println("   export ATLASSIAN_EMAIL=your-email@example.com")
-		fmt.Println("   export ATLASSIAN_TOKEN=your-api-token")
+		fmt.Println("  For Jira Server / Data Center — Personal Access Token (PAT):")
+		fmt.Println("    Generate from User Profile → Personal Access Tokens")
+		fmt.Println("    ATLASSIAN_HOST=https://jira.your-company.com")
+		fmt.Println("    ATLASSIAN_PAT=your-personal-access-token")
 		fmt.Println()
-		fmt.Println("   Option C - Using Docker:")
-               fmt.Printf("   docker run -e ATLASSIAN_HOST=https://your-domain.atlassian.net \\\n")
-		fmt.Printf("              -e ATLASSIAN_EMAIL=your-email@example.com \\\n")
-		fmt.Printf("              -e ATLASSIAN_TOKEN=your-api-token \\\n")
-		fmt.Printf("              ghcr.io/nguyenvanduocit/jira-mcp:latest\n")
+		fmt.Println("  Docker (Cloud example):")
+		fmt.Println("    docker run -e ATLASSIAN_HOST=... \\")
+		fmt.Println("               -e ATLASSIAN_EMAIL=... \\")
+		fmt.Println("               -e ATLASSIAN_TOKEN=... \\")
+		fmt.Println("               ghcr.io/nguyenvanduocit/jira-mcp:latest")
 		fmt.Println()
 		os.Exit(1)
 	}

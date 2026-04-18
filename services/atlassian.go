@@ -15,12 +15,12 @@ func loadAtlassianCredentials() (host, mail, token, pat string) {
 	token = os.Getenv("ATLASSIAN_TOKEN")
 	pat = os.Getenv("ATLASSIAN_PAT")
 
-	if host == "" {
-		log.Fatal("ATLASSIAN_HOST is required, please set it in MCP Config")
-	}
-
-	if pat == "" && (mail == "" || token == "") {
-		log.Fatal("Authentication required: set ATLASSIAN_PAT (for Jira Server/Data Center) or both ATLASSIAN_EMAIL and ATLASSIAN_TOKEN (for Jira Cloud)")
+	// Defense-in-depth: main.go already validates these with the same rule,
+	// but clients used by tests (or future callers that bypass main) still
+	// benefit from a crash-early guard. Share the rule via ValidateAtlassianEnv
+	// so both layers stay in lock-step.
+	if missing := ValidateAtlassianEnv(host, mail, token, pat); len(missing) > 0 {
+		log.Fatalf("Atlassian credentials incomplete — missing: %v", missing)
 	}
 
 	return host, mail, token, pat
