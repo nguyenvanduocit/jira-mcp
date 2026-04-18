@@ -33,8 +33,12 @@ Thumbs.db
 # Build directory
 /build/
 /dist/
-jira-mcp
+/jira-mcp
+/jira-cli
 bin/jira-cli
+
+# Sibling experimental project, not part of jira-mcp
+claude-peers-mcp/
 
 # Security scan cache
 .cache/security/
